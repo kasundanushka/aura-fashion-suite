@@ -1381,6 +1381,8 @@
     /* =========================================================
        GENERATE VIRTUAL TRY-ON
        ========================================================= */
+    let tryonProgressTimer = null;
+
     async function generateTryOn() {
       if (!personFile || !clothFile) return;
 
@@ -1389,21 +1391,54 @@
       const loader = document.getElementById('genLoader');
       const loaderText = document.getElementById('genLoaderText');
       const hint = document.getElementById('genHint');
+      const placeholder = document.getElementById('outputPlaceholder');
+      const imgWrap = document.getElementById('outputImageWrap');
+      const resultImg = document.getElementById('finalResultImg');
+      const actionsBar = document.getElementById('outputActionsBar');
+      const downloadBtn = document.getElementById('btnDownload');
 
       // Set loading state
       btn.disabled = true;
       btnText.textContent = 'Generating Try-On...';
       hint.style.display = 'none';
       loader.classList.add('show');
-      loaderText.textContent = 'Analyzing torso & draping fabric...';
+      loaderText.textContent = 'Connecting to IDM-VTON model space...';
+
+      // Progressive status updates for long-running diffusion inference
+      const loadingStages = [
+        { after: 4000, text: 'Analyzing human pose and garment boundaries...' },
+        { after: 10000, text: 'Running diffusion model: synthesizing realistic garment fit...' },
+        { after: 20000, text: 'Draping fabric textures and matching body contours...' },
+        { after: 32000, text: 'Finalizing high-resolution rendering, almost ready...' }
+      ];
+
+      let stageIdx = 0;
+      clearInterval(tryonProgressTimer);
+      const startTime = Date.now();
+      tryonProgressTimer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        while (stageIdx < loadingStages.length && elapsed >= loadingStages[stageIdx].after) {
+          loaderText.textContent = loadingStages[stageIdx].text;
+          stageIdx++;
+        }
+      }, 1000);
 
       const formData = new FormData();
       formData.append('person', personFile);
       formData.append('cloth', clothFile);
+      formData.append('garment_des', 'a stylish clothing garment');
+
+      // Auth header matching buyer and app session pattern
+      const user = JSON.parse(localStorage.getItem('aura_user') || '{}');
+      const headers = {};
+      if (user.email) {
+        headers['X-User-Email'] = user.email;
+      }
 
       try {
         const response = await fetch('/api/buyer/virtual-tryon', {
           method: 'POST',
+          headers: headers,
           body: formData
         });
 
@@ -1413,25 +1448,25 @@
           throw new Error(data.error || 'Failed to generate virtual try-on.');
         }
 
-        // Render result image on right side
-        const placeholder = document.getElementById('outputPlaceholder');
-        const imgWrap = document.getElementById('outputImageWrap');
-        const resultImg = document.getElementById('finalResultImg');
-        const actionsBar = document.getElementById('outputActionsBar');
-        const downloadBtn = document.getElementById('btnDownload');
+        const finalUrl = data.tryon_url || data.result_url;
+        if (!finalUrl) {
+          throw new Error('No try-on image URL returned by the service.');
+        }
 
-        resultImg.src = data.result_url + '?t=' + Date.now();
-        downloadBtn.href = data.result_url;
+        // Render result image on right side
+        resultImg.src = finalUrl + '?t=' + Date.now();
+        downloadBtn.href = finalUrl;
 
         placeholder.style.display = 'none';
         imgWrap.classList.add('show');
         actionsBar.classList.add('show');
 
-        showToast('Virtual Try-On generated successfully!', 'success');
+        showToast(data.message || 'Virtual Try-On generated successfully!', 'success');
 
       } catch (err) {
         showToast(err.message, 'error');
       } finally {
+        clearInterval(tryonProgressTimer);
         btn.disabled = false;
         btnText.textContent = 'Generate Virtual Try-On';
         hint.style.display = 'block';

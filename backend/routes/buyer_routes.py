@@ -7,6 +7,9 @@ and uploading clothing images for virtual try-on.
 import os
 import sys
 import uuid
+import logging
+import shutil
+import concurrent.futures
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 
@@ -16,6 +19,8 @@ from database.init_db import get_db_connection
 
 from PIL import Image, ImageFilter, ImageEnhance
 import numpy as np
+
+logger = logging.getLogger("BuyerRoutes")
 
 buyer_bp = Blueprint("buyer_bp", __name__, url_prefix="/api/buyer")
 
@@ -300,9 +305,29 @@ def _find_torso_anchor(person_rgb):
 @buyer_bp.route("/virtual-tryon", methods=["POST"])
 def virtual_tryon():
     """
-    Accepts person photo and clothing photo, composites garment naturally onto person,
-    and returns generated try-on image result.
+    Accepts person photo and clothing photo, submits to IDM-VTON diffusion model space
+    via gradio_client, saves generated try-on output, and returns result URL.
     """
+    # 1. Auth validation (X-User-Email header / form fallback matching app pattern)
+    user_email = (
+        request.headers.get("X-User-Email")
+        or request.headers.get("X-Admin-Email")
+        or request.form.get("user_email")
+        or request.form.get("email")
+    )
+    if user_email:
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, email FROM users WHERE LOWER(email) = ?", (user_email.strip().lower(),))
+            user = cursor.fetchone()
+            conn.close()
+            if not user:
+                return jsonify({"error": "Unauthorized: User not recognized."}), 401
+        except Exception as dberr:
+            logger.warning(f"Could not verify user email in database: {dberr}")
+
+    # 2. File validation
     if "person" not in request.files or "cloth" not in request.files:
         return jsonify({"error": "Both 'person' and 'cloth' images are required."}), 400
 
@@ -310,100 +335,105 @@ def virtual_tryon():
     cloth_file = request.files["cloth"]
 
     if not person_file.filename or not cloth_file.filename:
-        return jsonify({"error": "Both images must be selected."}), 400
+        return jsonify({"error": "Both 'person' and 'cloth' images must be selected."}), 400
 
     if not allowed_file(person_file.filename) or not allowed_file(cloth_file.filename):
         return jsonify({"error": "Invalid file format. Supported: PNG, JPG, JPEG, WebP."}), 400
 
     base_id = uuid.uuid4().hex[:10]
 
-    # Save person image
+    # 3. Save uploaded images
     p_ext = person_file.filename.rsplit(".", 1)[1].lower()
     p_filename = f"person_{base_id}.{p_ext}"
     p_path = os.path.join(PERSON_UPLOAD_FOLDER, p_filename)
     person_file.save(p_path)
 
-    # Save cloth image
     c_ext = cloth_file.filename.rsplit(".", 1)[1].lower()
     c_filename = f"cloth_{base_id}.{c_ext}"
     c_path = os.path.join(CLOTH_UPLOAD_FOLDER, c_filename)
     cloth_file.save(c_path)
 
+    # 4. IDM-VTON Gradio Client Prediction
+    space_name = os.getenv("IDM_VTON_SPACE", "yisol/IDM-VTON")
+    timeout_sec = int(os.getenv("IDM_VTON_TIMEOUT", 180))
+    garment_des = request.form.get("garment_des", "a shirt")
+
     try:
-        person_img = Image.open(p_path).convert("RGBA")
-        cloth_img = Image.open(c_path).convert("RGBA")
-
-        # Standardize person resolution for consistent high quality rendering
-        pw, ph = person_img.size
-        if ph > 1400 or pw > 1400:
-            scale = 1400.0 / max(pw, ph)
-            person_img = person_img.resize((int(pw * scale), int(ph * scale)), Image.Resampling.LANCZOS)
-            pw, ph = person_img.size
-
-        # Remove background from cloth image if needed
-        cloth_alpha = _remove_or_soften_background(cloth_img)
-
-        # Crop cloth to non-transparent bounding box
-        bbox = cloth_alpha.getbbox()
-        if bbox:
-            cloth_alpha = cloth_alpha.crop(bbox)
-
-        cw, ch = cloth_alpha.size
-
-        # Use smart torso anchor detection
-        pos_x, pos_y, target_w = _find_torso_anchor(person_img.convert("RGB"))
-
-        scale_ratio = target_w / float(cw)
-        target_h = int(ch * scale_ratio)
-
-        # Make sure garment doesn't extend beyond bottom of person image if cropped
-        if pos_y + target_h > ph:
-            target_h = ph - pos_y
-            scale_ratio = target_h / float(ch)
-            target_w = int(cw * scale_ratio)
-            pos_x = (pw - target_w) // 2
-
-        cloth_fitted = cloth_alpha.resize((max(10, int(target_w)), max(10, int(target_h))), Image.Resampling.LANCZOS)
-
-        # Base composite canvas
-        composite = person_img.copy()
-
-        # Add soft ambient shadow underneath garment for photoreal depth
+        from gradio_client import Client
         try:
-            shadow = Image.new("RGBA", (cloth_fitted.width, cloth_fitted.height), (10, 10, 15, 0))
-            alpha_mask = cloth_fitted.split()[3]
-            soft_shadow_mask = alpha_mask.filter(ImageFilter.GaussianBlur(radius=7))
-            soft_shadow_mask = soft_shadow_mask.point(lambda p: int(p * 0.35))
-            shadow.putalpha(soft_shadow_mask)
-            composite.paste(shadow, (int(pos_x), int(pos_y) + 3), shadow)
-        except Exception:
-            pass
+            from gradio_client import handle_file as gr_file
+        except ImportError:
+            from gradio_client import file as gr_file
 
-        # Paste clothing onto person
-        composite.paste(cloth_fitted, (int(pos_x), int(pos_y)), cloth_fitted)
-
-        # Save result as high quality JPG
-        result_filename = f"tryon_{base_id}.jpg"
-        result_path = os.path.join(TRYON_OUTPUT_FOLDER, result_filename)
-        rgb_result = composite.convert("RGB")
-        rgb_result.save(result_path, "JPEG", quality=95)
-
+        try:
+            client = Client(space_name, httpx_kwargs={"timeout": timeout_sec})
+        except Exception as first_err:
+            if "CERTIFICATE_VERIFY_FAILED" in str(first_err) or "certificate verify failed" in str(first_err):
+                logger.warning("SSL certificate verification failed, retrying with ssl_verify=False...")
+                client = Client(space_name, ssl_verify=False, httpx_kwargs={"timeout": timeout_sec})
+            else:
+                raise first_err
+    except Exception as conn_err:
+        logger.error(f"Failed to connect to IDM-VTON Space '{space_name}': {conn_err}")
         return jsonify({
-            "success": True,
-            "result_url": f"/uploads/tryon/{result_filename}",
-            "person_url": f"/uploads/persons/{p_filename}",
-            "cloth_url": f"/uploads/clothes/{c_filename}",
-            "garment_fit": {
-                "width": int(target_w),
-                "height": int(target_h),
-                "confidence": 0.94
-            },
-            "message": "Virtual try-on completed successfully!"
-        }), 200
+            "error": "Virtual try-on service is temporarily unavailable. Could not connect to model space.",
+            "details": str(conn_err)
+        }), 502
 
-    except Exception as e:
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(
+                client.predict,
+                dict={"background": gr_file(p_path), "layers": [], "composite": None},
+                garm_img=gr_file(c_path),
+                garment_des=garment_des,
+                is_checked=True,
+                is_checked_crop=False,
+                denoise_steps=30,
+                seed=42,
+                api_name="/tryon"
+            )
+            result = future.result(timeout=timeout_sec)
+    except concurrent.futures.TimeoutError:
+        logger.error(f"IDM-VTON prediction timed out after {timeout_sec}s")
         return jsonify({
-            "error": f"Failed to generate try-on: {str(e)}"
-        }), 500
+            "error": "Virtual try-on service is temporarily unavailable. Request timed out."
+        }), 502
+    except Exception as pred_err:
+        logger.error(f"IDM-VTON prediction failed: {pred_err}")
+        return jsonify({
+            "error": "Virtual try-on service is temporarily unavailable.",
+            "details": str(pred_err)
+        }), 502
+
+    # 5. Process and save result
+    if not result or len(result) == 0:
+        return jsonify({
+            "error": "Virtual try-on service returned an empty result."
+        }), 502
+
+    output_item = result[0]
+    output_path = output_item["path"] if (isinstance(output_item, dict) and "path" in output_item) else output_item
+
+    result_filename = f"tryon_{base_id}.jpg"
+    result_path = os.path.join(TRYON_OUTPUT_FOLDER, result_filename)
+
+    try:
+        with Image.open(output_path) as out_img:
+            out_img.convert("RGB").save(result_path, "JPEG", quality=95)
+    except Exception as img_err:
+        logger.warning(f"PIL conversion failed, copying output directly: {img_err}")
+        shutil.copyfile(output_path, result_path)
+
+    tryon_url = f"/uploads/tryon/{result_filename}"
+
+    return jsonify({
+        "success": True,
+        "tryon_url": tryon_url,
+        "result_url": tryon_url,
+        "person_url": f"/uploads/persons/{p_filename}",
+        "cloth_url": f"/uploads/clothes/{c_filename}",
+        "message": "Virtual try-on completed successfully!"
+    }), 200
 
 

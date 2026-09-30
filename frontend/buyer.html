@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AURA — AI Virtual Fitting Studio</title>
+  <meta name="description"
+    content="AURA AI Virtual Try-On Studio. Upload person and garment images to generate high-resolution try-on results in real time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       AURA DESIGN SYSTEM — SINGLE-SCREEN VIRTUAL STUDIO
+       ========================================================= */
+    :root {
+      --bg-base: #e9edf5;
+      --bg-surface: #dde3ee;
+      --bg-card: #ffffff;
+      --bg-card-inner: #f1f5fa;
+      --border-subtle: rgba(15, 23, 42, 0.12);
+      --border-glow: rgba(37, 99, 235, 0.35);
+      --border-focus: rgba(13, 148, 136, 0.40);
+
+      --v: #2563eb;
+      --p: #7c3aed;
+      --c: #0d9488;
+      --g: #059669;
+      --red: #dc2626;
+
+      --grad-primary: linear-gradient(135deg, #1a2c5b 0%, #2563eb 60%, #0d9488 100%);
+      --grad-btn: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      --grad-btn-hover: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%);
+
+      --text-white: #0f172a;
+      --text-main: #1e293b;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+
+      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.07), 0 1px 6px rgba(0, 0, 0, 0.04);
+      --shadow-glow: 0 4px 20px rgba(37, 99, 235, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .glow-circle {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: 0.06;
+    }
+
+    .glow-1 {
+      width: 500px;
+      height: 500px;
+      background: #2563eb;
+      top: -100px;
+      left: -100px;
+    }
+
+    .glow-2 {
+      width: 550px;
+      height: 550px;
+      background: #0d9488;
+      bottom: -150px;
+      right: -100px;
+    }
+
+    .app-wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* =========================================================
+       NAVBAR (DARK GLASS)
+       ========================================================= */
+    .navbar {
+      height: 64px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(20px);
+      flex-shrink: 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--grad-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(37, 99, 235, 0.20);
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      color: #93c5fd;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: rgba(5, 150, 105, 0.15);
+      border: 1px solid rgba(5, 150, 105, 0.35);
+      font-size: 12px;
+      font-weight: 500;
+      color: #34d399;
+    }
+
+    .status-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 6px 4px 10px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .user-avatar-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #0d9488);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .user-name-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-exit {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .btn-exit:hover {
+      background: rgba(220, 38, 38, 0.20);
+      color: #fca5a5;
+    }
+
+    /* =========================================================
+       MAIN DESKTOP WORKSPACE (SPLIT SCREEN)
+       ========================================================= */
+    .studio-workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      padding: 20px 32px;
+      max-width: 1560px;
+      width: 100%;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    @media (max-width: 1024px) {
+      .app-wrapper {
+        height: auto;
+        max-height: none;
+        overflow-y: auto;
+      }
+
+      .studio-workspace {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+        padding: 20px 18px;
+      }
+    }
+
+    /* PANEL BASE */
+    .studio-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .studio-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+      padding: 1px;
+      background: linear-gradient(145deg, rgba(37, 99, 235, 0.12), transparent 60%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a2c5b;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .panel-title svg {
+      color: var(--v);
+    }
+
+    .panel-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* =========================================================
+       LEFT PANEL: UPLOAD SECTION & GENERATE BUTTON
+       ========================================================= */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .upload-boxes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      flex: 1;
+      margin-bottom: 16px;
+    }
+
+    .upload-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .upload-box:hover {
+      border-color: rgba(37, 99, 235, 0.30);
+    }
+
+    .upload-box.active {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 16px rgba(13, 148, 136, 0.15);
+    }
+
+    .upload-box-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .upload-box-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a2c5b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .upload-box-label svg {
+      color: #2563eb;
+    }
+
+    .upload-badge {
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-dim);
+    }
+
+    .upload-badge.ready {
+      color: #34d399;
+    }
+
+    /* Dropzone area */
+    .dropzone-container {
+      flex: 1;
+      min-height: 220px;
+      max-height: 260px;
+      position: relative;
+      border: 1.5px dashed rgba(37, 99, 235, 0.25);
+      border-radius: var(--radius-sm);
+      background: rgba(239, 246, 255, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dropzone-container:hover,
+    .dropzone-container.dragover {
+      border-color: var(--v);
+      background: rgba(37, 99, 235, 0.06);
+    }
+
+    .dropzone-container input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+    }
+
+    .dropzone-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(37, 99, 235, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2563eb;
+      margin-bottom: 8px;
+    }
+
+    .dropzone-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a2c5b;
+      margin-bottom: 3px;
+    }
+
+    .dropzone-title span {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    .dropzone-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* Image Preview in box */
+    .box-preview-wrap {
+      display: none;
+      flex: 1;
+      min-height: 220px;
+      max-height: 260px;
+      position: relative;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: #05070c;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .box-preview-wrap.show {
+      display: block;
+    }
+
+    .box-preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .preview-actions-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px 10px;
+      background: linear-gradient(to top, rgba(5, 7, 12, 0.92), transparent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .preview-filename {
+      font-size: 11px;
+      color: #fff;
+      font-weight: 500;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-icon-action {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-icon-action:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .btn-icon-action.danger:hover {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    /* Sample chips */
+    .sample-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .sample-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .btn-chip {
+      background: rgba(37, 99, 235, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-chip:hover {
+      background: rgba(37, 99, 235, 0.12);
+      border-color: rgba(37, 99, 235, 0.35);
+      color: #1a2c5b;
+    }
+
+    /* GENERATE BUTTON & STATUS */
+    .generate-wrap {
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .btn-generate {
+      width: 100%;
+      height: 52px;
+      border-radius: 26px;
+      border: none;
+      background: var(--grad-btn);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(120, 87, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-generate:hover:not(:disabled) {
+      background: var(--grad-btn-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(120, 87, 255, 0.55), 0 0 20px rgba(217, 70, 239, 0.35);
+    }
+
+    .btn-generate:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      background: #e2e8f0;
+      box-shadow: none;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+    }
+
+    .gen-status-bar {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 20px;
+    }
+
+    .gen-hint {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .gen-hint.ready {
+      color: #34d399;
+      font-weight: 500;
+    }
+
+    /* In-button / Inline Loader */
+    .loader-inline {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #c4b5fd;
+    }
+
+    .loader-inline.show {
+      display: flex;
+    }
+
+    .spinner-sm {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* =========================================================
+       RIGHT PANEL: FINAL GENERATED IMAGE DISPLAY
+       ========================================================= */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .output-frame {
+      flex: 1;
+      width: 100%;
+      min-height: 380px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Placeholder state before generation */
+    .output-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px;
+      gap: 12px;
+    }
+
+    .placeholder-icon-box {
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      background: rgba(37, 99, 235, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.20);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2563eb;
+    }
+
+    .placeholder-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a2c5b;
+    }
+
+    .placeholder-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    /* Final Output Image Display */
+    .output-image-wrap {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .output-image-wrap.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .output-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      border-radius: var(--radius-md);
+    }
+
+    /* Output Card Bottom Action Bar */
+    .output-actions-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      flex-shrink: 0;
+    }
+
+    .output-actions-bar.show {
+      display: flex;
+    }
+
+    .output-meta-text {
+      font-size: 12px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .output-buttons-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-action-primary {
+      background: var(--grad-btn);
+      border: none;
+      color: #fff;
+      padding: 9px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(120, 87, 255, 0.35);
+      transition: all 0.2s;
+    }
+
+    .btn-action-primary:hover {
+      background: var(--grad-btn-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-action-secondary {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 9px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.2s;
+    }
+
+    .btn-action-secondary:hover {
+      background: rgba(37, 99, 235, 0.08);
+      border-color: rgba(37, 99, 235, 0.25);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 300;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      border-color: rgba(220, 38, 38, 0.35);
+      background: #fff5f5;
+      color: var(--red);
+    }
+
+    .toast.success {
+      border-color: rgba(5, 150, 105, 0.35);
+      background: #f0fdf4;
+      color: var(--g);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Ambient Light Orbs -->
+  <div class="bg-glow">
+    <div class="glow-circle glow-1"></div>
+    <div class="glow-circle glow-2"></div>
+  </div>
+
+  <div class="app-wrapper">
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+      <a href="/" class="nav-brand">
+        <div class="brand-icon">
+          <!-- Vector Diamond/Studio Monogram -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3h12l4 6-10 12L2 9z"></path>
+          </svg>
+        </div>
+        <div class="brand-title">
+          AURA
+          <span class="brand-badge">VIRTUAL STUDIO</span>
+        </div>
+      </a>
+
+      <div class="nav-right">
+        <div class="status-badge">
+          <span class="status-pulse"></span>
+          <span>Neural Engine Active</span>
+        </div>
+
+        <div class="user-chip">
+          <div class="user-avatar-circle" id="userInitial">B</div>
+          <span class="user-name-text" id="topUserName">Buyer</span>
+          <button class="btn-exit" onclick="logout()" title="Exit Studio">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Exit</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- SINGLE SCREEN WORKSPACE -->
+    <main class="studio-workspace">
+
+      <!-- ================= LEFT PANEL: UPLOADS & GENERATE ================= -->
+      <section class="studio-panel left-panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              Upload Images
+            </h2>
+            <p class="panel-sub">Select your photo and the garment you wish to try on</p>
+          </div>
+        </div>
+
+        <!-- 2 UPLOAD BOXES -->
+        <div class="upload-boxes-grid">
+
+          <!-- BOX 1: PERSON IMAGE -->
+          <div class="upload-box" id="personBox">
+            <div class="upload-box-head">
+              <span class="upload-box-label">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                1. Person Photo
+              </span>
+              <span class="upload-badge" id="personBadge">Not loaded</span>
+            </div>
+
+            <!-- Dropzone -->
+            <div class="dropzone-container" id="personDropzone">
+              <input type="file" id="personInput" accept="image/png, image/jpeg, image/webp" />
+              <div class="dropzone-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+                  <path d="M12 12v9"></path>
+                  <path d="m16 16-4-4-4 4"></path>
+                </svg>
+              </div>
+              <div class="dropzone-title">Drop photo or <span>Browse</span></div>
+              <div class="dropzone-hint">JPG, PNG, WebP</div>
+            </div>
+
+            <!-- Preview -->
+            <div class="box-preview-wrap" id="personPreviewWrap">
+              <img id="personPreviewImg" class="box-preview-img" alt="Person Preview" />
+              <div class="preview-actions-bar">
+                <span class="preview-filename" id="personFileName">person.jpg</span>
+                <button type="button" class="btn-icon-action danger" onclick="removePerson()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick sample -->
+            <div class="sample-bar">
+              <span class="sample-title">Sample:</span>
+              <button type="button" class="btn-chip" onclick="loadSample('male')">Male Model</button>
+              <button type="button" class="btn-chip" onclick="loadSample('female')">Female Model</button>
+            </div>
+          </div>
+
+          <!-- BOX 2: GARMENT IMAGE -->
+          <div class="upload-box" id="clothBox">
+            <div class="upload-box-head">
+              <span class="upload-box-label">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z">
+                  </path>
+                </svg>
+                2. Clothing Garment
+              </span>
+              <span class="upload-badge" id="clothBadge">Not loaded</span>
+            </div>
+
+            <!-- Dropzone -->
+            <div class="dropzone-container" id="clothDropzone">
+              <input type="file" id="clothInput" accept="image/png, image/jpeg, image/webp" />
+              <div class="dropzone-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+                  <path d="M12 12v9"></path>
+                  <path d="m16 16-4-4-4 4"></path>
+                </svg>
+              </div>
+              <div class="dropzone-title">Drop garment or <span>Browse</span></div>
+              <div class="dropzone-hint">PNG, JPG, WebP</div>
+            </div>
+
+            <!-- Preview -->
+            <div class="box-preview-wrap" id="clothPreviewWrap">
+              <img id="clothPreviewImg" class="box-preview-img" alt="Garment Preview" />
+              <div class="preview-actions-bar">
+                <span class="preview-filename" id="clothFileName">garment.png</span>
+                <button type="button" class="btn-icon-action danger" onclick="removeCloth()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick sample -->
+            <div class="sample-bar">
+              <span class="sample-title">Sample:</span>
+              <button type="button" class="btn-chip" onclick="loadSample('jacket')">Navy Jacket</button>
+              <button type="button" class="btn-chip" onclick="loadSample('hoodie')">Emerald Hoodie</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- GENERATE BUTTON AREA -->
+        <div class="generate-wrap">
+          <button id="generateBtn" class="btn-generate" onclick="generateTryOn()" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z">
+              </path>
+            </svg>
+            <span id="genBtnText">Generate Virtual Try-On</span>
+          </button>
+
+          <div class="gen-status-bar">
+            <span class="gen-hint" id="genHint">Upload both images to enable generation</span>
+            <div class="loader-inline" id="genLoader">
+              <div class="spinner-sm"></div>
+              <span id="genLoaderText">Processing neural try-on...</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= RIGHT PANEL: FINAL GENERATED IMAGE ================= -->
+      <section class="studio-panel right-panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+              </svg>
+              Virtual Try-On Result
+            </h2>
+            <p class="panel-sub">High-resolution AI fitted garment preview</p>
+          </div>
+        </div>
+
+        <!-- OUTPUT CONTAINER -->
+        <div class="output-frame" id="outputFrame">
+
+          <!-- INITIAL PLACEHOLDER -->
+          <div class="output-placeholder" id="outputPlaceholder">
+            <div class="placeholder-icon-box">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z">
+                </path>
+              </svg>
+            </div>
+            <div class="placeholder-title">Final Image Display</div>
+            <p class="placeholder-desc">
+              Upload a person photo and clothing item on the left panel, then click <strong>Generate Virtual
+                Try-On</strong> to preview the output here.
+            </p>
+          </div>
+
+          <!-- GENERATED IMAGE -->
+          <div class="output-image-wrap" id="outputImageWrap">
+            <img id="finalResultImg" class="output-img" alt="Virtual Try-On Final Output" />
+          </div>
+
+        </div>
+
+        <!-- ACTION BAR BELOW IMAGE -->
+        <div class="output-actions-bar" id="outputActionsBar">
+          <span class="output-meta-text">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Rendering Complete</span>
+          </span>
+
+          <div class="output-buttons-group">
+            <a id="btnDownload" href="#" download="aura_tryon_result.jpg" class="btn-action-primary">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download Image</span>
+            </a>
+            <button type="button" class="btn-action-secondary" onclick="tryAnother()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>Try Another</span>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast">
+    <span id="toastMsg">Notification</span>
+  </div>
+
+  <script>
+    /* =========================================================
+       AUTHENTICATION GATE
+       ========================================================= */
+    (function initAuth() {
+      const stored = localStorage.getItem('aura_user');
+      if (!stored) {
+        window.location.href = '/';
+        return;
+      }
+      try {
+        const user = JSON.parse(stored);
+        const name = user.name || user.email || 'Buyer';
+        document.getElementById('topUserName').textContent = name;
+        document.getElementById('userInitial').textContent = name.charAt(0).toUpperCase();
+      } catch (e) {
+        window.location.href = '/';
+      }
+    })();
+
+    function logout() {
+      const u = JSON.parse(localStorage.getItem('aura_user') || '{}');
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: u.email })
+      }).finally(() => {
+        localStorage.removeItem('aura_user');
+        window.location.href = '/';
+      });
+    }
+
+    /* =========================================================
+       FILE HANDLING & STATE
+       ========================================================= */
+    let personFile = null;
+    let clothFile = null;
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toastMsg');
+      text.textContent = msg;
+      toast.className = `toast show ${type}`;
+      setTimeout(() => {
+        toast.className = 'toast';
+      }, 3500);
+    }
+
+    function setupDropzone(dropzoneId, inputId, onFile) {
+      const dz = document.getElementById(dropzoneId);
+      const input = document.getElementById(inputId);
+
+      ['dragenter', 'dragover'].forEach(evt => {
+        dz.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dz.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(evt => {
+        dz.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dz.classList.remove('dragover');
+        });
+      });
+
+      dz.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          onFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      input.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          onFile(e.target.files[0]);
+        }
+      });
+    }
+
+    // Person dropzone
+    setupDropzone('personDropzone', 'personInput', (file) => {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please upload an image file.', 'error');
+        return;
+      }
+      personFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('personPreviewImg').src = e.target.result;
+        document.getElementById('personFileName').textContent = file.name;
+        document.getElementById('personDropzone').style.display = 'none';
+        document.getElementById('personPreviewWrap').classList.add('show');
+        document.getElementById('personBox').classList.add('active');
+
+        const badge = document.getElementById('personBadge');
+        badge.className = 'upload-badge ready';
+        badge.textContent = 'Photo Ready';
+
+        updateReadyState();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function removePerson() {
+      personFile = null;
+      document.getElementById('personInput').value = '';
+      document.getElementById('personPreviewWrap').classList.remove('show');
+      document.getElementById('personDropzone').style.display = 'flex';
+      document.getElementById('personBox').classList.remove('active');
+
+      const badge = document.getElementById('personBadge');
+      badge.className = 'upload-badge';
+      badge.textContent = 'Not loaded';
+
+      updateReadyState();
+    }
+
+    // Cloth dropzone
+    setupDropzone('clothDropzone', 'clothInput', (file) => {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please upload an image file.', 'error');
+        return;
+      }
+      clothFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('clothPreviewImg').src = e.target.result;
+        document.getElementById('clothFileName').textContent = file.name;
+        document.getElementById('clothDropzone').style.display = 'none';
+        document.getElementById('clothPreviewWrap').classList.add('show');
+        document.getElementById('clothBox').classList.add('active');
+
+        const badge = document.getElementById('clothBadge');
+        badge.className = 'upload-badge ready';
+        badge.textContent = 'Garment Ready';
+
+        updateReadyState();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function removeCloth() {
+      clothFile = null;
+      document.getElementById('clothInput').value = '';
+      document.getElementById('clothPreviewWrap').classList.remove('show');
+      document.getElementById('clothDropzone').style.display = 'flex';
+      document.getElementById('clothBox').classList.remove('active');
+
+      const badge = document.getElementById('clothBadge');
+      badge.className = 'upload-badge';
+      badge.textContent = 'Not loaded';
+
+      updateReadyState();
+    }
+
+    function updateReadyState() {
+      const btn = document.getElementById('generateBtn');
+      const hint = document.getElementById('genHint');
+
+      if (personFile && clothFile) {
+        btn.disabled = false;
+        hint.textContent = 'Ready to generate';
+        hint.className = 'gen-hint ready';
+      } else {
+        btn.disabled = true;
+        hint.textContent = 'Upload both images to enable generation';
+        hint.className = 'gen-hint';
+      }
+    }
+
+    // Quick sample loader
+    async function loadSample(type) {
+      try {
+        if (type === 'male' || type === 'female') {
+          const fn = type === 'male' ? 'sample_model_male.jpg' : 'sample_model_female.jpg';
+          const res = await fetch(`/uploads/persons/${fn}`);
+          const blob = await res.blob();
+          personFile = new File([blob], fn, { type: 'image/jpeg' });
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            document.getElementById('personPreviewImg').src = e.target.result;
+            document.getElementById('personFileName').textContent = fn;
+            document.getElementById('personDropzone').style.display = 'none';
+            document.getElementById('personPreviewWrap').classList.add('show');
+            document.getElementById('personBox').classList.add('active');
+
+            const badge = document.getElementById('personBadge');
+            badge.className = 'upload-badge ready';
+            badge.textContent = 'Photo Ready';
+
+            updateReadyState();
+          };
+          reader.readAsDataURL(blob);
+
+        } else if (type === 'jacket' || type === 'hoodie') {
+          const fn = type === 'jacket' ? 'sample_navy_jacket.png' : 'sample_emerald_hoodie.png';
+          const res = await fetch(`/uploads/clothes/${fn}`);
+          const blob = await res.blob();
+          clothFile = new File([blob], fn, { type: 'image/png' });
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            document.getElementById('clothPreviewImg').src = e.target.result;
+            document.getElementById('clothFileName').textContent = fn;
+            document.getElementById('clothDropzone').style.display = 'none';
+            document.getElementById('clothPreviewWrap').classList.add('show');
+            document.getElementById('clothBox').classList.add('active');
+
+            const badge = document.getElementById('clothBadge');
+            badge.className = 'upload-badge ready';
+            badge.textContent = 'Garment Ready';
+
+            updateReadyState();
+          };
+          reader.readAsDataURL(blob);
+        }
+      } catch (err) {
+        showToast('Could not load sample image.', 'error');
+      }
+    }
+
+    /* =========================================================
+       GENERATE VIRTUAL TRY-ON
+       ========================================================= */
+    async function generateTryOn() {
+      if (!personFile || !clothFile) return;
+
+      const btn = document.getElementById('generateBtn');
+      const btnText = document.getElementById('genBtnText');
+      const loader = document.getElementById('genLoader');
+      const loaderText = document.getElementById('genLoaderText');
+      const hint = document.getElementById('genHint');
+
+      // Set loading state
+      btn.disabled = true;
+      btnText.textContent = 'Generating Try-On...';
+      hint.style.display = 'none';
+      loader.classList.add('show');
+      loaderText.textContent = 'Analyzing torso & draping fabric...';
+
+      const formData = new FormData();
+      formData.append('person', personFile);
+      formData.append('cloth', clothFile);
+
+      try {
+        const response = await fetch('/api/buyer/virtual-tryon', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Failed to generate virtual try-on.');
+        }
+
+        // Render result image on right side
+        const placeholder = document.getElementById('outputPlaceholder');
+        const imgWrap = document.getElementById('outputImageWrap');
+        const resultImg = document.getElementById('finalResultImg');
+        const actionsBar = document.getElementById('outputActionsBar');
+        const downloadBtn = document.getElementById('btnDownload');
+
+        resultImg.src = data.result_url + '?t=' + Date.now();
+        downloadBtn.href = data.result_url;
+
+        placeholder.style.display = 'none';
+        imgWrap.classList.add('show');
+        actionsBar.classList.add('show');
+
+        showToast('Virtual Try-On generated successfully!', 'success');
+
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Generate Virtual Try-On';
+        hint.style.display = 'block';
+        loader.classList.remove('show');
+      }
+    }
+
+    function tryAnother() {
+      removeCloth();
+      showToast('Select another garment on the left to try on.', 'info');
+    }
+  </script>
+</body>
+
+</html>

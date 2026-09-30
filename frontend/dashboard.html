@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="AI-Based Clothing Sales Forecasting and Fashion Trend Intelligence System for Inventory Optimization">
+  <title>AURA Fashion Intelligence | AI Inventory Optimization</title>
+
+  <!-- Google Fonts & Chart.js -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <div class="app-container">
+
+    <!-- 1. Main Header & Navigation -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563eb,#4f46e5);border-radius:10px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <h1>AURA Fashion Intelligence</h1>
+          <p>AI Sales Forecasting &bull; Supervised Trend Classification &bull; Inventory Optimisation</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="admin.html" id="adminHeaderBtn" class="btn"
+          style="display:none; background:rgba(37,99,235,0.08); border:1px solid rgba(37,99,235,0.30); color:var(--accent-primary); font-size:12.5px; text-decoration:none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Admin Panel
+        </a>
+        <button class="btn btn-secondary" id="openUploadModalBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload Sales CSV
+        </button>
+        <button class="btn btn-primary" onclick="loadInitialDashboardData()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Refresh Intelligence
+        </button>
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown-wrapper" id="profileDropdownWrapper">
+          <button class="profile-trigger" id="profileTriggerBtn" aria-haspopup="true" aria-expanded="false">
+            <div id="dashAvatar" class="profile-avatar avatar-container"><span class="avatar-initial">U</span></div>
+            <span id="dashUserName" class="profile-name">User</span>
+            <svg class="profile-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dropdown-header">
+              <div id="dropdownAvatar" class="dropdown-avatar avatar-container"><span class="avatar-initial">U</span>
+              </div>
+              <div class="dropdown-user-info">
+                <span class="dropdown-user-name" id="dropdownUserName">User</span>
+                <span class="dropdown-user-email" id="dropdownUserEmail">user@example.com</span>
+              </div>
+            </div>
+            <div class="dropdown-role-badge" id="dropdownRoleBadge">
+              <span class="role-dot"></span>
+              <span id="dropdownRoleText">User</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-meta">
+              <div class="dropdown-meta-item">
+                <span class="meta-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Member Since
+                </span>
+                <span class="meta-value" id="dropdownJoinDate">--</span>
+              </div>
+              <div class="dropdown-meta-item">
+                <span class="meta-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Session
+                </span>
+                <span class="meta-value session-active">Active</span>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-action-item" id="editProfileBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Profile
+            </button>
+            <a href="admin.html" class="dropdown-action-item" id="dropdownAdminLink" style="display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Admin Panel
+            </a>
+            <button class="dropdown-action-item dropdown-logout" onclick="logoutDashboard()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. KPI Summary Cards Grid -->
+    <section class="kpi-grid" aria-label="Key Performance Indicators">
+      <div class="kpi-card kpi-urgent">
+        <div class="kpi-icon" style="color:var(--status-urgent);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="kpi-content">
+          <h3>Urgent Reorders</h3>
+          <div class="kpi-value" id="kpiUrgentCount">--</div>
+          <div class="kpi-subtext">Breached safety stock thresholds</div>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-budget">
+        <div class="kpi-icon" style="color:#f59e0b;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="kpi-content">
+          <h3>Target Reorder Budget</h3>
+          <div class="kpi-value" id="kpiReorderBudget">--</div>
+          <div class="kpi-subtext">Estimated wholesale capital needed</div>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-trending">
+        <div class="kpi-icon" style="color:var(--status-soon);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="kpi-content">
+          <h3>Reorder Soon</h3>
+          <div class="kpi-value" id="kpiReorderSoon">--</div>
+          <div class="kpi-subtext">Nearing reorder point (ROP)</div>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-accuracy">
+        <div class="kpi-icon" style="color:var(--status-overstocked);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <div class="kpi-content">
+          <h3>Overstocked SKUs</h3>
+          <div class="kpi-value" id="kpiOverstocked">--</div>
+          <div class="kpi-subtext">Excess holding capital detected</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Main Forecast & Product Intelligence Grid -->
+    <main class="dashboard-main">
+
+      <!-- Left Panel: Time-Series Demand Forecasting -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Demand Forecasting &amp; Seasonality Engine
+          </h2>
+        </div>
+
+        <!-- Filter & Selector Toolbar -->
+        <div class="selector-toolbar">
+          <div class="select-group">
+            <label for="skuSelect">Product SKU:</label>
+            <select id="skuSelect" class="custom-select"></select>
+          </div>
+
+          <div class="select-group">
+            <label for="horizonSelect">Forecast Horizon:</label>
+            <select id="horizonSelect" class="custom-select">
+              <option value="4">4 Weeks (Short)</option>
+              <option value="8" selected>8 Weeks (Standard)</option>
+              <option value="12">12 Weeks (Long)</option>
+            </select>
+          </div>
+
+          <div class="category-tabs" aria-label="Category Filters">
+            <button class="category-tab active" data-category="ALL">All</button>
+            <button class="category-tab" data-category="Outerwear">Outerwear</button>
+            <button class="category-tab" data-category="Knitwear">Knitwear</button>
+            <button class="category-tab" data-category="Tops">Tops</button>
+            <button class="category-tab" data-category="Bottoms">Bottoms</button>
+            <button class="category-tab" data-category="Dresses">Dresses</button>
+          </div>
+        </div>
+
+        <!-- Forecast Chart Canvas -->
+        <div class="chart-container">
+          <canvas id="demandForecastChart"></canvas>
+        </div>
+
+        <!-- Model Comparison & Accuracy Metrics Container -->
+        <div id="modelMetricsContainer"></div>
+      </div>
+
+      <!-- Right Panel: AI Trend & Optimisation Recommendation -->
+      <aside class="panel-card intelligence-panel" aria-label="Product Intelligence and Recommendations">
+        <div class="panel-header">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+            Intelligence &amp; Reorder Rule
+          </h2>
+        </div>
+
+        <!-- Product Summary Details -->
+        <div class="product-hero">
+          <span class="product-sku-badge" id="productSkuBadge">SKU-000</span>
+          <h3 id="productNameTitle">Product Name</h3>
+          <div class="product-meta-list">
+            <div class="meta-item"><span>Category:</span> <span id="productCategoryText">--</span></div>
+            <div class="meta-item"><span>Subcategory:</span> <span id="productSubcategoryText">--</span></div>
+            <div class="meta-item"><span>Retail Price:</span> <span id="productPriceText">--</span></div>
+            <div class="meta-item"><span>Material:</span> <span id="productMaterialText">--</span></div>
+            <div class="meta-item"><span>Current Stock:</span> <span id="productStockText">--</span></div>
+          </div>
+        </div>
+
+        <!-- Trend Classification Indicator Badge -->
+        <div id="trendBadgeContainer" class="trend-card stable">
+          <div class="trend-badge-left">
+            <div class="trend-icon">▬</div>
+            <div>
+              <div class="trend-title">AI Trend Direction</div>
+              <div class="trend-status-text">Analyzing Trend...</div>
+            </div>
+          </div>
+          <div class="trend-score">
+            <strong>--%</strong>
+            <span>Confidence</span>
+          </div>
+        </div>
+
+        <!-- Optimization Reorder Box -->
+        <div class="opt-box">
+          <h4>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Rule-Based Reorder Recommendation
+          </h4>
+          <div class="opt-stats-grid">
+            <div class="opt-stat">
+              <span>Safety Stock (SS)</span>
+              <strong id="optSafetyStock">--</strong>
+            </div>
+            <div class="opt-stat">
+              <span>Reorder Point</span>
+              <strong id="optReorderPoint">--</strong>
+            </div>
+            <div class="opt-stat">
+              <span>Suggested Order</span>
+              <strong id="optRecommendedQty" style="color:var(--accent-primary);">--</strong>
+            </div>
+          </div>
+          <div id="optActionText" class="opt-action-text badge-soon">
+            Evaluating stock levels against forecasted demand...
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <!-- 4. Global Reorder Alerts Table Panel -->
+    <section class="panel-card table-panel" aria-label="Inventory Reorder Table">
+      <div class="panel-header">
+        <h2>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          All SKUs Reorder Recommendation Matrix
+        </h2>
+      </div>
+
+      <div class="table-toolbar">
+        <div class="table-filters">
+          <button class="filter-btn active" data-filter="ALL" onclick="setAlertFilter('ALL')">All SKUs</button>
+          <button class="filter-btn" data-filter="URGENT_REORDER" onclick="setAlertFilter('URGENT_REORDER')">Critical Urgent</button>
+          <button class="filter-btn" data-filter="REORDER_SOON" onclick="setAlertFilter('REORDER_SOON')">Reorder Soon</button>
+          <button class="filter-btn" data-filter="SUFFICIENT_STOCK" onclick="setAlertFilter('SUFFICIENT_STOCK')">Sufficient Stock</button>
+          <button class="filter-btn" data-filter="OVERSTOCKED" onclick="setAlertFilter('OVERSTOCKED')">Overstocked</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="alerts-table">
+          <thead>
+            <tr>
+              <th onclick="sortAlertsTable('sku')">SKU ↕</th>
+              <th onclick="sortAlertsTable('name')">Product Details ↕</th>
+              <th onclick="sortAlertsTable('urgency')">Urgency Status ↕</th>
+              <th onclick="sortAlertsTable('stock')">Current Stock ↕</th>
+              <th onclick="sortAlertsTable('forecast')">Forecast Demand ↕</th>
+              <th onclick="sortAlertsTable('trend')">AI Trend Status ↕</th>
+              <th onclick="sortAlertsTable('reorder')">Recommended Qty ↕</th>
+              <th onclick="sortAlertsTable('cost')">Estimated Cost ↕</th>
+            </tr>
+          </thead>
+          <tbody id="alertsTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">Loading live
+                inventory intelligence...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 5. CSV Upload Modal Dialog -->
+  <div class="modal-overlay" id="uploadModal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Upload New Sales Dataset</h3>
+        <button type="button" class="close-btn" id="closeUploadModalBtn" title="Close dialog"
+          aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="dropzone" id="uploadDropzone">
+        <div class="dropzone-icon" style="color:var(--accent-primary);">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <h4>Drag &amp; Drop Sales CSV Here</h4>
+        <p style="color:var(--text-secondary); font-size:12.5px; margin-top:6px;">or click to browse from your device
+        </p>
+        <p style="color:var(--text-muted); font-size:11px; margin-top:10px;">Required columns: date, sku, quantity_sold,
+          unit_price</p>
+      </div>
+      <input type="file" id="salesCsvFileInput" accept=".csv" style="display:none;">
+    </div>
+  </div>
+
+  <!-- 6. Floating Notification Toast -->
+  <div class="toast" id="toastNotification"></div>
+
+  <!-- 7. Edit Profile Modal -->
+  <div class="modal-overlay" id="editProfileModal" role="dialog" aria-modal="true">
+    <div class="modal-content profile-modal-content">
+      <div class="modal-header">
+        <h3>Edit Profile</h3>
+        <button class="close-btn" id="closeProfileModalBtn">&times;</button>
+      </div>
+      <form id="profileEditForm" autocomplete="off">
+        <div class="profile-edit-avatar-section">
+          <div id="editAvatarPreview" class="edit-avatar-preview avatar-container"><span class="avatar-initial">U</span>
+          </div>
+          <div class="avatar-upload-actions">
+            <label class="btn btn-upload" for="avatarFileInput">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Upload Photo
+            </label>
+            <button type="button" class="btn btn-remove-avatar" id="removeAvatarBtn" style="display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Remove
+            </button>
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/gif,image/webp"
+            style="display:none;">
+          <div class="avatar-upload-hint">JPG, PNG, GIF or WebP • Max 5MB</div>
+        </div>
+        <div class="profile-form-group">
+          <label for="editName">Display Name</label>
+          <input type="text" id="editName" class="profile-input" placeholder="Your name" autocomplete="off">
+        </div>
+        <div class="profile-form-divider">
+          <span>Change Password (optional)</span>
+        </div>
+        <div class="profile-form-group">
+          <label for="editCurrentPassword">Current Password</label>
+          <input type="password" id="editCurrentPassword" class="profile-input" placeholder="Enter current password"
+            autocomplete="new-password">
+        </div>
+        <div class="profile-form-group">
+          <label for="editNewPassword">New Password</label>
+          <input type="password" id="editNewPassword" class="profile-input" placeholder="Min 6 characters"
+            autocomplete="new-password">
+        </div>
+        <div id="profileEditError" class="profile-edit-error"></div>
+        <div id="profileEditSuccess" class="profile-edit-success"></div>
+        <div class="profile-form-actions">
+          <button type="button" class="btn btn-secondary" id="cancelProfileEditBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveProfileBtn">
+            <span id="saveProfileSpinner" class="spinner" style="display:none;"></span>
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Scripts -->
+  <script src="js/charts.js"></script>
+  <script src="js/alerts.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script>
+    // ── Avatar Helpers ──
+    const AVATAR_COLORS = [
+      '#6366f1', '#8b5cf6', '#d946ef', '#ec4899', '#f43f5e',
+      '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16',
+      '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
+      '#3b82f6', '#6366f1', '#a855f7', '#d946ef', '#f472b6'
+    ];
+
+    function getInitial(name) {
+      return (name || 'U').charAt(0).toUpperCase();
+    }
+
+    function getAvatarColor(name) {
+      let hash = 0;
+      const str = (name || 'U');
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+    }
+
+    function renderAvatar(container, name, avatarUrl) {
+      if (!container) return;
+      if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
+        container.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        container.style.background = 'none';
+      } else {
+        const initial = getInitial(name);
+        const color = getAvatarColor(name);
+        container.innerHTML = `<span class="avatar-initial">${initial}</span>`;
+        container.style.background = color;
+      }
+    }
+
+    function renderAllAvatars(user) {
+      renderAvatar(document.getElementById('dashAvatar'), user.name, user.avatar_url);
+      renderAvatar(document.getElementById('dropdownAvatar'), user.name, user.avatar_url);
+    }
+
+    // ── User session initialization & Profile Dropdown ──
+    (function () {
+      const stored = localStorage.getItem('aura_user');
+      if (stored) {
+        try {
+          const user = JSON.parse(stored);
+          const nameEl = document.getElementById('dashUserName');
+          const adminBtn = document.getElementById('adminHeaderBtn');
+
+          if (nameEl && user.name) nameEl.textContent = user.name;
+          if (adminBtn && user.role === 'admin') adminBtn.style.display = 'inline-flex';
+
+          renderAllAvatars(user);
+
+          // Dropdown details
+          const ddName = document.getElementById('dropdownUserName');
+          const ddEmail = document.getElementById('dropdownUserEmail');
+          const ddRole = document.getElementById('dropdownRoleText');
+          const ddRoleBadge = document.getElementById('dropdownRoleBadge');
+          const ddJoin = document.getElementById('dropdownJoinDate');
+          const ddAdmin = document.getElementById('dropdownAdminLink');
+
+          if (ddName && user.name) ddName.textContent = user.name;
+          if (ddEmail && user.email) ddEmail.textContent = user.email;
+          if (ddRole) {
+            ddRole.textContent = user.role === 'admin' ? 'Administrator' : 'Team Member';
+          }
+          if (ddRoleBadge && user.role === 'admin') ddRoleBadge.classList.add('role-admin');
+          if (ddAdmin && user.role === 'admin') ddAdmin.style.display = 'flex';
+
+          if (user.email) {
+            fetch('/api/auth/me?email=' + encodeURIComponent(user.email))
+              .then(r => r.json())
+              .then(data => {
+                if (data.user && data.user.created_at && ddJoin) {
+                  const d = new Date(data.user.created_at);
+                  ddJoin.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                }
+              }).catch(() => { });
+          }
+        } catch (e) { }
+      }
+
+      // Toggle dropdown
+      const trigger = document.getElementById('profileTriggerBtn');
+      const dropdown = document.getElementById('profileDropdown');
+      const wrapper = document.getElementById('profileDropdownWrapper');
+
+      if (trigger && dropdown) {
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const isOpen = dropdown.classList.toggle('open');
+          trigger.setAttribute('aria-expanded', isOpen);
+          wrapper.classList.toggle('active', isOpen);
+        });
+        document.addEventListener('click', function (e) {
+          if (!wrapper.contains(e.target)) {
+            dropdown.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+            wrapper.classList.remove('active');
+          }
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            dropdown.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+            wrapper.classList.remove('active');
+          }
+        });
+      }
+    })();
+
+    function logoutDashboard() {
+      const u = JSON.parse(localStorage.getItem('aura_user') || '{}');
+      if (u.email) {
+        fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: u.email })
+        }).catch(() => { });
+      }
+      localStorage.removeItem('aura_user');
+      localStorage.removeItem('aura_token');
+      window.location.href = 'index.html';
+    }
+
+    // ── Edit Profile Modal Logic ──
+    (function () {
+      const modal = document.getElementById('editProfileModal');
+      const editBtn = document.getElementById('editProfileBtn');
+      const closeBtn = document.getElementById('closeProfileModalBtn');
+      const cancelBtn = document.getElementById('cancelProfileEditBtn');
+      const form = document.getElementById('profileEditForm');
+      const errorEl = document.getElementById('profileEditError');
+      const successEl = document.getElementById('profileEditSuccess');
+      const spinner = document.getElementById('saveProfileSpinner');
+      const avatarPreview = document.getElementById('editAvatarPreview');
+      const fileInput = document.getElementById('avatarFileInput');
+      const removeBtn = document.getElementById('removeAvatarBtn');
+      let pendingAvatarFile = null;
+
+      function openModal() {
+        const user = JSON.parse(localStorage.getItem('aura_user') || '{}');
+        document.getElementById('editName').value = user.name || '';
+        document.getElementById('editCurrentPassword').value = '';
+        document.getElementById('editNewPassword').value = '';
+        errorEl.textContent = ''; errorEl.style.display = 'none';
+        successEl.textContent = ''; successEl.style.display = 'none';
+        pendingAvatarFile = null;
+        if (fileInput) fileInput.value = '';
+
+        // Render preview
+        renderAvatar(avatarPreview, user.name, user.avatar_url);
+
+        // Show/hide remove button
+        if (removeBtn) {
+          removeBtn.style.display = (user.avatar_url && user.avatar_url.startsWith('/uploads/')) ? 'inline-flex' : 'none';
+        }
+
+        modal.classList.add('active');
+        document.getElementById('profileDropdown').classList.remove('open');
+        document.getElementById('profileTriggerBtn').setAttribute('aria-expanded', 'false');
+        document.getElementById('profileDropdownWrapper').classList.remove('active');
+      }
+
+      function closeModal() { modal.classList.remove('active'); }
+
+      if (editBtn) editBtn.addEventListener('click', openModal);
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+      if (modal) modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+      // File input change — preview selected image
+      if (fileInput) {
+        fileInput.addEventListener('change', function () {
+          const file = fileInput.files[0];
+          if (!file) return;
+          if (file.size > 5 * 1024 * 1024) {
+            errorEl.textContent = 'File is too large. Maximum size is 5MB.';
+            errorEl.style.display = 'block';
+            fileInput.value = '';
+            return;
+          }
+          pendingAvatarFile = file;
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            avatarPreview.style.background = 'none';
+            if (removeBtn) removeBtn.style.display = 'inline-flex';
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Remove avatar
+      if (removeBtn) {
+        removeBtn.addEventListener('click', async function () {
+          const user = JSON.parse(localStorage.getItem('aura_user') || '{}');
+          pendingAvatarFile = null;
+          if (fileInput) fileInput.value = '';
+
+          // If user has an uploaded avatar, remove from server
+          if (user.avatar_url && user.avatar_url.startsWith('/uploads/')) {
+            await fetch('/api/auth/avatar/remove', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: user.email })
+            }).catch(() => { });
+            user.avatar_url = null;
+            localStorage.setItem('aura_user', JSON.stringify(user));
+          }
+
+          renderAvatar(avatarPreview, user.name, null);
+          renderAllAvatars(user);
+          removeBtn.style.display = 'none';
+        });
+      }
+
+      // Submit
+      if (form) {
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          errorEl.style.display = 'none';
+          successEl.style.display = 'none';
+
+          const user = JSON.parse(localStorage.getItem('aura_user') || '{}');
+
+          // 1. Upload avatar if pending
+          let avatarChanged = false;
+          if (pendingAvatarFile) {
+            spinner.style.display = 'inline-block';
+            const fd = new FormData();
+            fd.append('avatar', pendingAvatarFile);
+            fd.append('email', user.email);
+            try {
+              const res = await fetch('/api/auth/avatar', { method: 'POST', body: fd });
+              const data = await res.json();
+              if (!res.ok) {
+                errorEl.textContent = data.error || 'Avatar upload failed';
+                errorEl.style.display = 'block';
+                spinner.style.display = 'none';
+                return;
+              }
+              user.avatar_url = data.avatar_url;
+              avatarChanged = true;
+            } catch (err) {
+              errorEl.textContent = 'Avatar upload failed. Try again.';
+              errorEl.style.display = 'block';
+              spinner.style.display = 'none';
+              return;
+            }
+          }
+
+          // 2. Update name/password
+          const payload = { email: user.email };
+          const newName = document.getElementById('editName').value.trim();
+          const curPwd = document.getElementById('editCurrentPassword').value;
+          const newPwd = document.getElementById('editNewPassword').value;
+
+          if (newName && newName !== user.name) payload.name = newName;
+          if (newPwd) {
+            if (newPwd.length < 6) {
+              errorEl.textContent = 'New password must be at least 6 characters';
+              errorEl.style.display = 'block';
+              spinner.style.display = 'none';
+              return;
+            }
+            payload.new_password = newPwd;
+            payload.current_password = curPwd;
+          }
+
+          const hasProfileChanges = Object.keys(payload).length > 1;
+          if (!hasProfileChanges && !avatarChanged) {
+            errorEl.textContent = 'No changes to save';
+            errorEl.style.display = 'block';
+            return;
+          }
+
+          spinner.style.display = 'inline-block';
+          if (hasProfileChanges) {
+            try {
+              const res = await fetch('/api/auth/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              const data = await res.json();
+              if (!res.ok) {
+                errorEl.textContent = data.error || 'Update failed';
+                errorEl.style.display = 'block';
+                spinner.style.display = 'none';
+                return;
+              }
+              if (data.user) {
+                user.name = data.user.name || user.name;
+                if (!avatarChanged) user.avatar_url = data.user.avatar_url;
+              }
+            } catch (err) {
+              errorEl.textContent = 'Network error. Please try again.';
+              errorEl.style.display = 'block';
+              spinner.style.display = 'none';
+              return;
+            }
+          }
+
+          // Update everything
+          localStorage.setItem('aura_user', JSON.stringify(user));
+          document.getElementById('dashUserName').textContent = user.name;
+          document.getElementById('dropdownUserName').textContent = user.name;
+          renderAllAvatars(user);
+
+          successEl.textContent = '✅ Profile updated successfully!';
+          successEl.style.display = 'block';
+          spinner.style.display = 'none';
+          pendingAvatarFile = null;
+
+          setTimeout(closeModal, 1200);
+        });
+      }
+    })();
+  </script>
+</body>
+
+</html>

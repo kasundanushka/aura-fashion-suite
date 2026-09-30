@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+
+# Environment Variables
+.env
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+!database/schema.sql
+
+# Data
+data/raw/*.csv
+data/processed/*.csv
+data/uploads/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/uploads/.gitkeep
+
+# Uploads
+frontend/uploads/*
+!frontend/uploads/.gitkeep
+!frontend/uploads/avatars/
+frontend/uploads/avatars/*
+!frontend/uploads/avatars/.gitkeep
+!frontend/uploads/clothing/
+frontend/uploads/clothing/*
+!frontend/uploads/clothing/.gitkeep
+!frontend/uploads/persons/
+frontend/uploads/persons/*
+!frontend/uploads/persons/.gitkeep
+!frontend/uploads/tryon/
+frontend/uploads/tryon/*
+!frontend/uploads/tryon/.gitkeep
+!frontend/uploads/clothes/
+frontend/uploads/clothes/*
+!frontend/uploads/clothes/.gitkeep
+!frontend/uploads/clothes/sample_*
+
+
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/

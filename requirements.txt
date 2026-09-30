@@ -1,0 +1,24 @@
+# Web Framework & API
+Flask==3.0.3
+Flask-Cors==4.0.1
+python-dotenv==1.0.1
+
+# Data Processing & Numerical Computing
+pandas==2.2.2
+numpy==1.26.4
+
+# Machine Learning & Time-Series Forecasting
+scikit-learn==1.4.2
+prophet==1.1.5
+statsmodels==0.14.2
+
+# Visualization & EDA (for notebooks)
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# Testing & Quality Assurance
+pytest==8.2.0
+
+# Jupyter Environment
+jupyter==1.0.0
+ipykernel==6.29.4

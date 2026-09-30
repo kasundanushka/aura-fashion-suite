@@ -1,0 +1,2812 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AURA - AI-powered fashion inventory governance, demand forecasting & trend intelligence engine, paired with customer 3D virtual fitting room.">
+  <title>AURA Fashion Intelligence | AI Demand Forecasting & 3D Virtual Try-On</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #08090e;
+      --sf: #0f1119;
+      --card: #141720;
+      --card2: #191d2b;
+      --b: rgba(255, 255, 255, 0.07);
+      --v: #7857ff;
+      --p: #e040a0;
+      --c: #00bcd4;
+      --g: #00c897;
+      --a: #ffb300;
+      --grad: linear-gradient(135deg, #7857ff 0%, #e040a0 55%, #00bcd4 100%);
+      --g2: linear-gradient(135deg, #7857ff, #e040a0);
+      --t1: #eeedf8;
+      --t2: #8f96b0;
+      --t3: #454b63;
+      --rr: 10px;
+      --rm: 16px;
+      --rl: 24px;
+      --rx: 36px;
+      --ease: .3s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--t1);
+      line-height: 1.6;
+      overflow-x: hidden
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg)
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--v);
+      border-radius: 99px
+    }
+
+    a {
+      text-decoration: none
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 15px;
+      border-radius: 99px;
+      background: rgba(120, 87, 255, 0.12);
+      border: 1px solid rgba(120, 87, 255, 0.28);
+      color: #b8a8ff;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px
+    }
+
+    .ld {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--v);
+      box-shadow: 0 0 6px var(--v);
+      animation: blink 2s ease infinite
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 22px;
+      border-radius: var(--rr);
+      cursor: pointer;
+      border: none;
+      transition: all var(--ease);
+      white-space: nowrap
+    }
+
+    .bp {
+      background: var(--grad);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(120, 87, 255, 0.35)
+    }
+
+    .bp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(120, 87, 255, 0.5)
+    }
+
+    .bg2 {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--t2);
+      border: 1px solid var(--b)
+    }
+
+    .bg2:hover {
+      color: var(--t1);
+      border-color: rgba(255, 255, 255, 0.14)
+    }
+
+    .bo {
+      background: transparent;
+      color: var(--t1);
+      border: 1px solid var(--b)
+    }
+
+    .bo:hover {
+      background: rgba(255, 255, 255, 0.04)
+    }
+
+    .blg {
+      padding: 14px 32px;
+      font-size: 15px;
+      border-radius: var(--rm)
+    }
+
+    .bxl {
+      padding: 16px 40px;
+      font-size: 16px;
+      border-radius: var(--rm)
+    }
+
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 52px;
+      background: rgba(8, 9, 14, 0.55);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--b);
+      transition: padding var(--ease), background var(--ease)
+    }
+
+    .nav.stuck {
+      padding: 12px 52px;
+      background: rgba(8, 9, 14, 0.92)
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .bmark {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 0 16px rgba(120, 87, 255, 0.4)
+    }
+
+    .bname {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .nmenu {
+      display: flex;
+      gap: 28px;
+      list-style: none
+    }
+
+    .nmenu a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--t2);
+      transition: color var(--ease)
+    }
+
+    .nmenu a:hover {
+      color: var(--t1)
+    }
+
+    .nright {
+      display: flex;
+      gap: 10px;
+      align-items: center
+    }
+
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      overflow: hidden;
+      isolation: isolate
+    }
+
+    .orbs {
+      position: absolute;
+      inset: 0;
+      pointer-events: none
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: .14;
+      animation: flt 10s ease-in-out infinite
+    }
+
+    .o1 {
+      width: 700px;
+      height: 700px;
+      background: #5e35b1;
+      top: -250px;
+      left: -150px
+    }
+
+    .o2 {
+      width: 550px;
+      height: 550px;
+      background: #c2185b;
+      top: -100px;
+      right: -180px;
+      animation-delay: -4s
+    }
+
+    .o3 {
+      width: 420px;
+      height: 420px;
+      background: #00838f;
+      bottom: -60px;
+      left: 42%;
+      animation-delay: -7s
+    }
+
+    @keyframes flt {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1)
+      }
+
+      40% {
+        transform: translate(24px, -32px) scale(1.06)
+      }
+
+      70% {
+        transform: translate(-16px, 20px) scale(.96)
+      }
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, .03) 1px, transparent 1px);
+      background-size: 36px 36px;
+      z-index: 0;
+      pointer-events: none
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: linear-gradient(to top, var(--bg), transparent);
+      pointer-events: none
+    }
+
+    .hero>* {
+      position: relative;
+      z-index: 1
+    }
+
+    .hlabel {
+      margin-bottom: 26px;
+      animation: up .7s ease both
+    }
+
+    .hh1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(42px, 7.2vw, 86px);
+      font-weight: 900;
+      line-height: 1.03;
+      letter-spacing: -2.5px;
+      margin-bottom: 22px;
+      animation: up .75s .08s ease both
+    }
+
+    .hh1 .plain {
+      display: block;
+      color: var(--t1)
+    }
+
+    .hh1 .grad {
+      display: block;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .hsub {
+      max-width: 540px;
+      font-size: 18px;
+      color: var(--t2);
+      line-height: 1.75;
+      margin-bottom: 40px;
+      animation: up .75s .16s ease both
+    }
+
+    .hacts {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 64px;
+      animation: up .75s .24s ease both
+    }
+
+    .mockup {
+      width: 100%;
+      max-width: 880px;
+      border-radius: var(--rl);
+      border: 1px solid var(--b);
+      overflow: hidden;
+      box-shadow: 0 32px 100px rgba(0, 0, 0, .65), 0 0 80px rgba(120, 87, 255, .12);
+      animation: up .85s .32s ease both
+    }
+
+    .mbar {
+      padding: 12px 18px;
+      background: var(--sf);
+      border-bottom: 1px solid var(--b);
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%
+    }
+
+    .dr {
+      background: #ef4444
+    }
+
+    .dy {
+      background: #f59e0b
+    }
+
+    .dg {
+      background: #10b981
+    }
+
+    .murl {
+      margin-left: 12px;
+      padding: 4px 14px;
+      background: var(--card);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--t3);
+      font-family: monospace;
+      border: 1px solid var(--b)
+    }
+
+    .mbody {
+      background: var(--card);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px
+    }
+
+    .kpi {
+      padding: 16px;
+      background: var(--card2);
+      border-radius: var(--rr);
+      border: 1px solid var(--b)
+    }
+
+    .kicon {
+      font-size: 18px;
+      margin-bottom: 6px
+    }
+
+    .kval {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 3px
+    }
+
+    .klbl {
+      font-size: 10px;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: .8px
+    }
+
+    .ku .kval {
+      color: #ef4444
+    }
+
+    .kb .kval {
+      color: var(--g)
+    }
+
+    .ks .kval {
+      color: var(--a)
+    }
+
+    .ko .kval {
+      color: var(--c)
+    }
+
+    .mchart {
+      grid-column: span 4;
+      background: var(--card2);
+      border-radius: var(--rr);
+      border: 1px solid var(--b);
+      padding: 14px;
+      height: 110px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px
+    }
+
+    .mrow {
+      grid-column: span 4;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px
+    }
+
+    .mc {
+      padding: 13px 14px;
+      background: var(--card2);
+      border-radius: var(--rr);
+      border: 1px solid var(--b)
+    }
+
+    .mct {
+      font-size: 10px;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      margin-bottom: 7px
+    }
+
+    .mcbadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600
+    }
+
+    .bup {
+      background: rgba(0, 200, 151, .12);
+      color: #00c897
+    }
+
+    .bdn {
+      background: rgba(239, 68, 68, .12);
+      color: #ef4444
+    }
+
+    .mcn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--t1);
+      margin-top: 4px
+    }
+
+    .proof {
+      padding: 30px 24px;
+      background: var(--sf);
+      border-top: 1px solid var(--b);
+      border-bottom: 1px solid var(--b)
+    }
+
+    .pin {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 44px;
+      flex-wrap: wrap
+    }
+
+    .psn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 2px
+    }
+
+    .psl {
+      font-size: 11px;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: .8px
+    }
+
+    .psep {
+      width: 1px;
+      height: 36px;
+      background: var(--b)
+    }
+
+    section {
+      padding: 96px 24px
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto
+    }
+
+    .sc {
+      text-align: center
+    }
+
+    .sc .st {
+      margin: 0 auto
+    }
+
+    .ey {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--v);
+      margin-bottom: 12px
+    }
+
+    .sh {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(26px, 3.2vw, 44px);
+      font-weight: 800;
+      letter-spacing: -1.2px;
+      line-height: 1.12;
+      margin-bottom: 12px;
+      color: var(--t1)
+    }
+
+    .sh span {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .st {
+      font-size: 16px;
+      color: var(--t2);
+      max-width: 500px;
+      line-height: 1.75
+    }
+
+    .shd {
+      margin-bottom: 52px
+    }
+
+    .bgrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px
+    }
+
+    .bc {
+      background: var(--card);
+      border: 1px solid var(--b);
+      border-radius: var(--rl);
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--ease), transform var(--ease), box-shadow var(--ease)
+    }
+
+    .bc::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(120, 87, 255, .07), rgba(224, 64, 160, .03));
+      opacity: 0;
+      transition: opacity var(--ease)
+    }
+
+    .bc:hover {
+      border-color: rgba(120, 87, 255, .35);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, .4), 0 0 32px rgba(120, 87, 255, .1)
+    }
+
+    .bc:hover::after {
+      opacity: 1
+    }
+
+    .bi {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1
+    }
+
+    .iv {
+      background: rgba(120, 87, 255, .14);
+      border: 1px solid rgba(120, 87, 255, .28)
+    }
+
+    .ip {
+      background: rgba(224, 64, 160, .14);
+      border: 1px solid rgba(224, 64, 160, .28)
+    }
+
+    .ic {
+      background: rgba(0, 188, 212, .14);
+      border: 1px solid rgba(0, 188, 212, .28)
+    }
+
+    .ig {
+      background: rgba(0, 200, 151, .14);
+      border: 1px solid rgba(0, 200, 151, .28)
+    }
+
+    .ia {
+      background: rgba(255, 179, 0, .14);
+      border: 1px solid rgba(255, 179, 0, .28)
+    }
+
+    .ir {
+      background: rgba(239, 68, 68, .14);
+      border: 1px solid rgba(239, 68, 68, .28)
+    }
+
+    .bt2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--t1);
+      margin-bottom: 7px;
+      position: relative;
+      z-index: 1
+    }
+
+    .bd {
+      font-size: 14px;
+      color: var(--t2);
+      line-height: 1.65;
+      position: relative;
+      z-index: 1
+    }
+
+    .howbg {
+      background: var(--sf)
+    }
+
+    .hwrap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      position: relative
+    }
+
+    .hwrap::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: calc(16.6% + 14px);
+      right: calc(16.6% + 14px);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(120, 87, 255, .4) 30%, rgba(224, 64, 160, .4) 70%, transparent)
+    }
+
+    .hs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px
+    }
+
+    .snum {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--v);
+      position: relative;
+      z-index: 1;
+      transition: all var(--ease)
+    }
+
+    .hs:hover .snum {
+      background: var(--grad);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 24px rgba(120, 87, 255, .4);
+      transform: scale(1.1)
+    }
+
+    .si2 {
+      font-size: 22px
+    }
+
+    .st2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--t1)
+    }
+
+    .sd {
+      font-size: 13px;
+      color: var(--t2);
+      line-height: 1.6;
+      max-width: 200px
+    }
+
+    .sclist {
+      display: flex;
+      flex-direction: column;
+      gap: 72px
+    }
+
+    .sci {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: center
+    }
+
+    .sci.flip {
+      direction: rtl
+    }
+
+    .sci.flip>* {
+      direction: ltr
+    }
+
+    .sctext .ey {
+      margin-bottom: 8px
+    }
+
+    .sctext .sh {
+      font-size: clamp(22px, 2.4vw, 34px);
+      margin-bottom: 10px
+    }
+
+    .sctext p {
+      font-size: 15px;
+      color: var(--t2);
+      line-height: 1.75;
+      margin-bottom: 18px
+    }
+
+    .bl {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .bl li {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      font-size: 14px;
+      color: var(--t2)
+    }
+
+    .bl li::before {
+      content: '\2713';
+      color: var(--g);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px
+    }
+
+    .scvis {
+      background: var(--card);
+      border: 1px solid var(--b);
+      border-radius: var(--rl);
+      padding: 22px;
+      box-shadow: 0 12px 48px rgba(0, 0, 0, .4)
+    }
+
+    .vtitle {
+      font-size: 11px;
+      color: var(--t3);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 14px
+    }
+
+    .vrows {
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .vr {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--t3)
+    }
+
+    .vbw {
+      flex: 1;
+      height: 8px;
+      background: rgba(255, 255, 255, .05);
+      border-radius: 99px;
+      overflow: hidden
+    }
+
+    .vb {
+      height: 100%;
+      border-radius: 99px
+    }
+
+    .vline {
+      height: 100px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px
+    }
+
+    .vleg {
+      display: flex;
+      gap: 14px;
+      margin-top: 8px
+    }
+
+    .vlg {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--t3)
+    }
+
+    .vlgd {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%
+    }
+
+    .vtrends {
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .trr {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      background: var(--card2);
+      border-radius: var(--rr);
+      border: 1px solid var(--b)
+    }
+
+    .trs {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--t3);
+      width: 54px;
+      flex-shrink: 0
+    }
+
+    .trn {
+      font-size: 13px;
+      color: var(--t2);
+      flex: 1
+    }
+
+    .trb {
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .bri {
+      background: rgba(0, 200, 151, .12);
+      color: #00c897
+    }
+
+    .bst {
+      background: rgba(0, 188, 212, .12);
+      color: #00bcd4
+    }
+
+    .bde {
+      background: rgba(239, 68, 68, .12);
+      color: #ef4444
+    }
+
+    .trc {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t1);
+      width: 36px;
+      text-align: right
+    }
+
+    .valerting {
+      display: flex;
+      flex-direction: column;
+      gap: 7px
+    }
+
+    .ar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      background: var(--card2);
+      border-radius: var(--rr);
+      border-left: 3px solid;
+      border-top: 1px solid var(--b);
+      border-right: 1px solid var(--b);
+      border-bottom: 1px solid var(--b)
+    }
+
+    .ar.au {
+      border-left-color: #ef4444
+    }
+
+    .ar.as {
+      border-left-color: #ffb300
+    }
+
+    .ar.ao {
+      border-left-color: #00c897
+    }
+
+    .ars {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--t3);
+      width: 52px;
+      flex-shrink: 0
+    }
+
+    .art {
+      font-size: 12px;
+      font-weight: 600;
+      flex: 1
+    }
+
+    .ar.au .art {
+      color: #f87171
+    }
+
+    .ar.as .art {
+      color: #fcd34d
+    }
+
+    .ar.ao .art {
+      color: #6ee7b7
+    }
+
+    .arq {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1)
+    }
+
+    .ctabg {
+      background: var(--sf)
+    }
+
+    .ctabox {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 68px 44px;
+      background: var(--card);
+      border: 1px solid var(--b);
+      border-radius: var(--rx);
+      position: relative;
+      overflow: hidden;
+      text-align: center
+    }
+
+    .ctabox::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(120, 87, 255, .2), transparent 70%);
+      pointer-events: none
+    }
+
+    .ctabox::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      right: -40px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(224, 64, 160, .12), transparent 70%);
+      pointer-events: none
+    }
+
+    .ctabox h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(24px, 3.2vw, 40px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.12;
+      margin-bottom: 12px;
+      position: relative
+    }
+
+    .ctabox p {
+      font-size: 15px;
+      color: var(--t2);
+      margin-bottom: 28px;
+      line-height: 1.7;
+      position: relative
+    }
+
+    .ctaacts {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative
+    }
+
+    footer {
+      padding: 36px 24px 24px;
+      background: var(--bg);
+      border-top: 1px solid var(--b)
+    }
+
+    .ft {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px
+    }
+
+    .fbd {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .fm2 {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      background: var(--grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px
+    }
+
+    .fn2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .fcp {
+      font-size: 12px;
+      color: var(--t3)
+    }
+
+    .flinks {
+      display: flex;
+      gap: 18px;
+      list-style: none
+    }
+
+    .flinks a {
+      font-size: 12px;
+      color: var(--t3);
+      transition: color var(--ease)
+    }
+
+    .flinks a:hover {
+      color: var(--t2)
+    }
+
+    .mbg {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0, 0, 0, .72);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease
+    }
+
+    .mbg.open {
+      opacity: 1;
+      pointer-events: all
+    }
+
+    .abox {
+      background: var(--card);
+      border: 1px solid rgba(120, 87, 255, .25);
+      border-radius: var(--rx);
+      padding: 38px 34px;
+      width: 100%;
+      max-width: 410px;
+      position: relative;
+      transform: translateY(24px) scale(.97);
+      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .6), 0 0 60px rgba(120, 87, 255, .1)
+    }
+
+    .abox::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--grad);
+      border-radius: var(--rx) var(--rx) 0 0
+    }
+
+    .mbg.open .abox {
+      transform: none
+    }
+
+    .cx {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--b);
+      color: var(--t2);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--ease)
+    }
+
+    .cx:hover {
+      background: rgba(255, 255, 255, .1);
+      color: var(--t1)
+    }
+
+    .abrand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px
+    }
+
+    .abmark {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: var(--grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      box-shadow: 0 0 12px rgba(120, 87, 255, .4)
+    }
+
+    .abname {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .atabs {
+      display: flex;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--b);
+      border-radius: var(--rr);
+      padding: 3px;
+      margin-bottom: 22px
+    }
+
+    .atab {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--t2);
+      transition: all var(--ease)
+    }
+
+    .atab.on {
+      background: var(--grad);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(120, 87, 255, .3)
+    }
+
+    .apanel {
+      display: none
+    }
+
+    .apanel.on {
+      display: block
+    }
+
+    .atitle {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--t1);
+      margin-bottom: 4px
+    }
+
+    .asub {
+      font-size: 13px;
+      color: var(--t2);
+      margin-bottom: 20px;
+      line-height: 1.5
+    }
+
+    .gbtn {
+      width: 100%;
+      padding: 11px;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--b);
+      border-radius: var(--rr);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      color: var(--t1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      transition: all var(--ease);
+      margin-bottom: 16px
+    }
+
+    .gbtn:hover {
+      background: rgba(255, 255, 255, .09)
+    }
+
+    .divline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px
+    }
+
+    .divline::before,
+    .divline::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--b)
+    }
+
+    .divline span {
+      font-size: 11px;
+      color: var(--t3)
+    }
+
+    .fg {
+      margin-bottom: 12px
+    }
+
+    .flabel {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--t2);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 5px
+    }
+
+    .iw {
+      position: relative
+    }
+
+    .fi {
+      width: 100%;
+      padding: 10px 13px 10px 36px;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--b);
+      border-radius: var(--rr);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      color: var(--t1);
+      outline: none;
+      transition: border-color var(--ease), box-shadow var(--ease)
+    }
+
+    .fi::placeholder {
+      color: var(--t3)
+    }
+
+    .fi:focus {
+      border-color: var(--v);
+      box-shadow: 0 0 0 3px rgba(120, 87, 255, .16)
+    }
+
+    .fico {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      pointer-events: none
+    }
+
+    .feye {
+      position: absolute;
+      right: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--t3);
+      background: none;
+      border: none;
+      transition: color var(--ease)
+    }
+
+    .feye:hover {
+      color: var(--t2)
+    }
+
+    .frow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    .fopts {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px
+    }
+
+    .fck {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer
+    }
+
+    .fck input {
+      accent-color: var(--v)
+    }
+
+    .fck span {
+      font-size: 12px;
+      color: var(--t2)
+    }
+
+    .ffgt {
+      font-size: 12px;
+      color: var(--v);
+      transition: opacity var(--ease)
+    }
+
+    .ffgt:hover {
+      opacity: .7
+    }
+
+    .bauth {
+      width: 100%;
+      padding: 11px;
+      background: var(--grad);
+      color: #fff;
+      border: none;
+      border-radius: var(--rr);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(120, 87, 255, .35);
+      transition: all var(--ease);
+      margin-bottom: 16px
+    }
+
+    .bauth:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(120, 87, 255, .5)
+    }
+
+    .pbwrap {
+      height: 3px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, .05);
+      margin-top: 5px;
+      overflow: hidden
+    }
+
+    .pbar {
+      height: 100%;
+      border-radius: 99px;
+      width: 0;
+      transition: width .4s, background .4s
+    }
+
+    .afoot {
+      text-align: center;
+      font-size: 12px;
+      color: var(--t3)
+    }
+
+    .afoot a {
+      color: var(--v);
+      font-weight: 600;
+      transition: opacity var(--ease)
+    }
+
+    .afoot a:hover {
+      opacity: .7
+    }
+
+    .fckwrap {
+      margin-bottom: 14px
+    }
+
+    .sr {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity .6s ease, transform .6s ease
+    }
+
+    .sr.in {
+      opacity: 1;
+      transform: none
+    }
+
+    .d1 {
+      transition-delay: .07s
+    }
+
+    .d2 {
+      transition-delay: .14s
+    }
+
+    .d3 {
+      transition-delay: .21s
+    }
+
+    @keyframes up {
+      from {
+        opacity: 0;
+        transform: translateY(18px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @media(max-width:1024px) {
+      .nav {
+        padding: 14px 24px
+      }
+
+      .nav.stuck {
+        padding: 11px 24px
+      }
+
+      .nmenu {
+        display: none
+      }
+
+      .sci,
+      .sci.flip {
+        grid-template-columns: 1fr;
+        direction: ltr
+      }
+
+      .sci.flip .scvis {
+        order: -1
+      }
+    }
+
+    @media(max-width:860px) {
+      .bgrid {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .hwrap {
+        grid-template-columns: 1fr
+      }
+
+      .hwrap::before {
+        display: none
+      }
+
+      .mbody {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .mchart,
+      .mrow {
+        grid-column: span 2
+      }
+
+      .mrow {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .psep {
+        display: none
+      }
+    }
+
+    @media(max-width:600px) {
+      .bgrid {
+        grid-template-columns: 1fr
+      }
+
+      .mbody {
+        grid-template-columns: 1fr
+      }
+
+      .mchart,
+      .mrow {
+        grid-column: span 1
+      }
+
+      .ctabox {
+        padding: 42px 20px
+      }
+
+      .pin {
+        gap: 24px
+      }
+
+      .nright .bo {
+        display: none
+      }
+    }
+
+    /* ===== DUAL PORTAL & ADMIN SHOWCASE STYLES ===== */
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .portal-card {
+      background: var(--card);
+      border: 1px solid var(--b);
+      border-radius: var(--rl);
+      padding: 32px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: all var(--ease);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .portal-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(120, 87, 255, 0.4);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+    .portal-card.admin-core {
+      border-color: rgba(120, 87, 255, 0.3);
+      background: linear-gradient(135deg, rgba(120, 87, 255, 0.08) 0%, rgba(20, 23, 32, 0.95) 100%);
+    }
+    .portal-card.buyer-room {
+      border-color: rgba(0, 188, 212, 0.3);
+      background: linear-gradient(135deg, rgba(0, 188, 212, 0.08) 0%, rgba(20, 23, 32, 0.95) 100%);
+    }
+    .portal-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      width: fit-content;
+    }
+    .tag-admin {
+      background: rgba(120, 87, 255, 0.2);
+      color: #c4b5fd;
+      border: 1px solid rgba(120, 87, 255, 0.4);
+    }
+    .tag-buyer {
+      background: rgba(0, 188, 212, 0.2);
+      color: #67e8f9;
+      border: 1px solid rgba(0, 188, 212, 0.4);
+    }
+    .portal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .portal-desc {
+      font-size: 14px;
+      color: var(--t2);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .portal-acts {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .adm-sim-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--b);
+      margin-bottom: 14px;
+    }
+    .adm-sim-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 600;
+    }
+    .adm-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .adm-stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--b);
+      border-radius: 8px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .adm-stat-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .adm-stat-lbl {
+      font-size: 10px;
+      color: var(--t2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .adm-action-bar {
+      background: rgba(120, 87, 255, 0.08);
+      border: 1px solid rgba(120, 87, 255, 0.25);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .adm-log-ticker {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #9da3b4;
+      line-height: 1.6;
+    }
+    .adm-log-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .adm-log-item:last-child {
+      margin-bottom: 0;
+    }
+    .adm-log-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+    .fit-steps-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .fit-step-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--b);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .fit-step-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      background: rgba(0, 188, 212, 0.15);
+      color: #00bcd4;
+      border: 1px solid rgba(0, 188, 212, 0.3);
+      flex-shrink: 0;
+    }
+    .fit-measure-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .fit-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #c4b5fd;
+    }
+  </style>
+</head>
+
+<body>
+
+    <nav class="nav" id="nav">
+    <a class="brand" href="#">
+      <div class="bmark">&#x1F457;</div>
+      <span class="bname">AURA</span>
+    </a>
+    <ul class="nmenu">
+      <li><a href="#admin-core">Admin & AI Engine</a></li>
+      <li><a href="#buyer-experience">Buyer 3D Try-On</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#showcase">Deep Dive</a></li>
+      <li><a href="#portals">Direct Portals</a></li>
+    </ul>
+    <div class="nright">
+      <a href="admin.html" class="btn bg2"
+        style="border-color:rgba(120,87,255,0.5);background:rgba(120,87,255,0.12);color:#c3b5ff;font-size:13px;padding:9px 16px;"><span>🛡️</span> Admin Control</a>
+      <a href="buyer.html" class="btn bg2"
+        style="border-color:rgba(0,188,212,0.4);background:rgba(0,188,212,0.08);color:#67e8f9;font-size:13px;padding:9px 16px;"><span>👗</span> 3D Fitting Room</a>
+      <button class="btn bo" id="openLoginBtn">Log In</button>
+      <button class="btn bp" id="openRegisterBtn">Get Started &rarr;</button>
+    </div>
+  </nav>
+
+  <section class="hero" id="top">
+    <div class="orbs">
+      <div class="orb o1"></div>
+      <div class="orb o2"></div>
+      <div class="orb o3"></div>
+    </div>
+    <div class="label hlabel"><span class="ld"></span>AI &middot; Fashion Inventory Intelligence &middot; Dual-Engine Ecosystem</div>
+    <h1 class="hh1">
+      <span class="plain">Predict Demand. Control Stock.</span><br>
+      <span class="grad">Elevate the Fit in 3D.</span>
+    </h1>
+    <p class="hsub">AURA is an enterprise fashion AI platform. The <strong>Admin Control Center</strong> serves as the enterprise brain—driving Facebook Prophet sales forecasting, Random Forest trend detection, and automated EOQ reorder governance. Concurrently, the <strong>Buyer Section</strong> delivers an interactive 3D Virtual Fitting Room with 7-point body sizing and AI garment try-on, turning customer fit engagement into real predictive demand.</p>
+    <div class="hacts">
+      <a href="admin.html" class="btn bp bxl">&#x1F6E1;&#xFE0F; Launch Admin Portal</a>
+      <a href="buyer.html" class="btn bg2 blg" style="border-color:rgba(0,188,212,0.5);color:#67e8f9;background:rgba(0,188,212,0.08);">&#x1F457; Experience 3D Fitting Room &rarr;</a>
+      <button class="btn bo blg" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">See how it works &darr;</button>
+    </div>
+    <div class="mockup sr">
+      <div class="mbar">
+        <div class="dot dr"></div>
+        <div class="dot dy"></div>
+        <div class="dot dg"></div>
+        <div class="murl">aura-fashion.ai / enterprise-orchestration</div>
+      </div>
+      <div class="mbody">
+        <div class="kpi ku">
+          <div class="kicon">&#x1F6A8;</div>
+          <div class="kval">3</div>
+          <div class="klbl">Urgent Reorders</div>
+        </div>
+        <div class="kpi kb">
+          <div class="kicon">&#x1F4B0;</div>
+          <div class="kval">&pound;8.4K</div>
+          <div class="klbl">Reorder Budget</div>
+        </div>
+        <div class="kpi ks">
+          <div class="kicon">&#x26A0;&#xFE0F;</div>
+          <div class="kval">7</div>
+          <div class="klbl">Reorder Soon</div>
+        </div>
+        <div class="kpi ko" style="border-color:rgba(0,188,212,0.3);">
+          <div class="kicon">&#x1F457;</div>
+          <div class="kval" style="color:#67e8f9;">96.4%</div>
+          <div class="klbl">3D Fit Accuracy</div>
+        </div>
+        <div class="mchart" id="mockChart"></div>
+        <div class="mrow">
+          <div class="mc">
+            <div class="mct">Admin Core Engine</div>
+            <div class="mcbadge bup">Prophet v1.1.5 + EOQ</div>
+            <div class="mcn">95% Conf. Band</div>
+          </div>
+          <div class="mc">
+            <div class="mcbadge bdn">&#x1F6A8; Urgent Alert</div>
+            <div class="mct" style="margin-top:4px;">SKU-007 Midi Dress</div>
+            <div class="mcn">Reorder: 210 units</div>
+          </div>
+          <div class="mc" style="border-color:rgba(0,188,212,0.25);">
+            <div class="mct">Buyer 3D Room</div>
+            <div class="mcbadge" style="background:rgba(0,188,212,0.2);color:#67e8f9;border:1px solid rgba(0,188,212,0.4);">👗 7-Point Sizing</div>
+            <div class="mcn">AI Auto-Segmentation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="proof">
+    <div class="pin">
+      <div style="text-align:center">
+        <div class="psn">5 Panels</div>
+        <div class="psl">Admin Governance Hub</div>
+      </div>
+      <div class="psep"></div>
+      <div style="text-align:center">
+        <div class="psn">12 wks</div>
+        <div class="psl">Prophet Forecast Horizon</div>
+      </div>
+      <div class="psep"></div>
+      <div style="text-align:center">
+        <div class="psn">Random Forest</div>
+        <div class="psl">Trend Momentum Classifier</div>
+      </div>
+      <div class="psep"></div>
+      <div style="text-align:center">
+        <div class="psn">7-Point Sizing</div>
+        <div class="psl">Buyer 3D Body Avatar</div>
+      </div>
+      <div class="psep"></div>
+      <div style="text-align:center">
+        <div class="psn">Dynamic EOQ</div>
+        <div class="psl">Safety Stock &amp; Reorder Engine</div>
+      </div>
+    </div>
+  </div>
+
+  <section id="admin-core">
+    <div class="wrap">
+      <div class="shd sc sr">
+        <span class="ey">System Architecture &amp; Capabilities</span>
+        <h2 class="sh">The Enterprise Brain<br><span>Meets Customer Fit.</span></h2>
+        <p class="st">Our platform is engineered around administrative inventory governance and machine learning, enriched with an interactive 3D virtual fitting room for buyers.</p>
+      </div>
+      <div class="bgrid">
+        <div class="bc sr d1" style="border-color:rgba(120,87,255,0.35);background:linear-gradient(135deg,rgba(120,87,255,0.1),var(--card));">
+          <div class="bi iv">&#x1F6E1;&#xFE0F;</div>
+          <div class="bt2" style="color:#c4b5fd;">Admin Governance &amp; RBAC Control</div>
+          <p class="bd"><strong>Core Purpose:</strong> Comprehensive administrator portal with strict role-based access control, user provisioning, role promotion/demotion, and continuous IP-tracked security audit logging.</p>
+        </div>
+        <div class="bc sr d2">
+          <div class="bi iv">&#x1F4C8;</div>
+          <div class="bt2">Prophet Demand Forecasting</div>
+          <p class="bd">See 4&ndash;12 weeks of projected demand per SKU with 95% confidence intervals &mdash; powered by Facebook Prophet v1.1.5, capturing seasonality, promotional lifts, and holiday trends.</p>
+        </div>
+        <div class="bc sr d3">
+          <div class="bi ip">&#x1F9E0;</div>
+          <div class="bt2">Random Forest Trend Detection</div>
+          <p class="bd">AI evaluates 28-day rolling momentum, lag signals, and category velocity. Automatically applies a +15% inventory buffer to rising styles and a -20% conservative dampener to declining lines.</p>
+        </div>
+        <div class="bc sr d1">
+          <div class="bi ir">&#x1F6A8;</div>
+          <div class="bt2">Dynamic EOQ &amp; Reorder Alerts</div>
+          <p class="bd">Four urgency tiers (Urgent Reorder, Reorder Soon, Normal, Overstocked) with exact economic reorder quantities, safety stock margins, and wholesale cash-flow budget projections.</p>
+        </div>
+        <div class="bc sr d2" style="border-color:rgba(120,87,255,0.25);">
+          <div class="bi ig">&#x1F504;</div>
+          <div class="bt2">One-Click Pipeline Retraining</div>
+          <p class="bd">Admins trigger full ETL data cleaning, feature engineering, and model refresh with a single click. Ingest historical sales CSVs and download clean analysis-ready datasets anytime.</p>
+        </div>
+        <div class="bc sr d3" style="border-color:rgba(0,188,212,0.3);background:linear-gradient(135deg,rgba(0,188,212,0.08),var(--card));">
+          <div class="bi ic" style="color:#00bcd4;">&#x1F457;</div>
+          <div class="bt2" style="color:#67e8f9;">Buyer 3D Virtual Fitting Room</div>
+          <p class="bd"><strong>Shopper Portal:</strong> 3D avatar customization (Male &amp; Female), 7-point precision body measurements, and AI garment image upload with automatic background segmentation and virtual try-on.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="howbg" id="how">
+    <div class="wrap">
+      <div class="shd sc sr">
+        <span class="ey">Closed-Loop Architecture</span>
+        <h2 class="sh">Four Steps from<br><span>Administrative Setup to 3D Try-On.</span></h2>
+        <p class="st">How the Admin control center, AI models, and Buyer fitting room operate together as an interconnected ecosystem.</p>
+      </div>
+      <div class="hwrap" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+        <div class="hs sr d1">
+          <div class="snum">1</div>
+          <div class="si2">&#x1F6E1;&#xFE0F;</div>
+          <div class="st2">Admin Catalog &amp; Data Ingestion</div>
+          <p class="sd">Administrators provision garment SKUs (categories, pricing, stock) and upload sales CSVs. The system cleans and indexes data with audit logging.</p>
+        </div>
+        <div class="hs sr d2">
+          <div class="snum">2</div>
+          <div class="si2">&#x26A1;</div>
+          <div class="st2">AI Forecasting &amp; EOQ Reordering</div>
+          <p class="sd">Prophet models future demand curves while Random Forest identifies trend momentum, generating ranked reorder quantities with wholesale budget estimates.</p>
+        </div>
+        <div class="hs sr d3">
+          <div class="snum">3</div>
+          <div class="si2">&#x1F457;</div>
+          <div class="st2">Buyer 3D Avatar &amp; Virtual Try-On</div>
+          <p class="sd">Shoppers input 7-point body measurements, customize 3D avatars, and upload clothes for computer-vision segmentation (front &amp; back view fit simulation).</p>
+        </div>
+        <div class="hs sr d4">
+          <div class="snum">4</div>
+          <div class="si2">&#x1F504;</div>
+          <div class="st2">Demand Feedback &amp; ML Retraining</div>
+          <p class="sd">Buyer fit interactions produce real-time sizing demand telemetry. Admins review stockout alerts and trigger one-click pipeline retraining to synchronize inventory.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="showcase">
+    <div class="wrap">
+      <div class="shd sc sr">
+        <span class="ey">Deep Dive</span>
+        <h2 class="sh">Inside the Admin &amp; Buyer Portals<br><span>What Happens &amp; How They Work.</span></h2>
+      </div>
+      <div class="sclist">
+
+        <!-- SHOWCASE 1: ADMIN CONTROL CENTER (PRIMARY FOCUS) -->
+        <div class="sci sr" style="border: 1px solid rgba(120,87,255,0.25); border-radius: var(--rx); padding: 36px; background: rgba(120,87,255,0.03);">
+          <div class="sctext">
+            <span class="ey" style="color:#c4b5fd;">Primary Purpose &middot; Administrator Portal</span>
+            <h3 class="sh">Total Governance, SKU Catalog<br>&amp; Pipeline Retraining.</h3>
+            <p>The <strong>Admin Control Center (admin.html)</strong> is the mission-critical core of AURA. Built exclusively for system administrators, it orchestrates the machine learning pipeline, provisions products, and safeguards operational integrity.</p>
+            <ul class="bl">
+              <li><strong>Role-Based Access Control (RBAC):</strong> Provision, promote, demote, or delete accounts with protected root administrator privileges.</li>
+              <li><strong>SKU &amp; Catalog Provisioning:</strong> Add new garment SKUs, assign wholesale costs, retail pricing, and initial warehouse stock levels.</li>
+              <li><strong>One-Click Pipeline Retrain:</strong> Trigger real-time data cleaning, feature engineering, and model refresh with instant alert counters.</li>
+              <li><strong>Security Audit Logging:</strong> Automatic IP-tracked audit trails logging every administrative and authentication action.</li>
+              <li><strong>Dataset Export:</strong> Instant CSV downloads of clean sales history, feature matrices, and reorder cost matrices.</li>
+            </ul>
+            <div style="margin-top:20px;">
+              <a href="admin.html" class="btn bp" style="font-size:13px;padding:9px 18px;"><span>🛡️</span> Open Admin Control Center &rarr;</a>
+            </div>
+          </div>
+          <div class="scvis" style="border-color:rgba(120,87,255,0.35);">
+            <div class="adm-sim-header">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:10px;height:10px;border-radius:50%;background:#8b5cf6;"></div>
+                <div class="vtitle" style="margin:0;color:#fff;">ADMIN CONTROL CENTER &mdash; GOVERNANCE</div>
+              </div>
+              <span class="adm-sim-badge">&#x25CF; SYSTEM OPERATIONAL</span>
+            </div>
+            <div class="adm-stats-row">
+              <div class="adm-stat-box">
+                <div class="adm-stat-val">30</div>
+                <div class="adm-stat-lbl">SKUs Active</div>
+              </div>
+              <div class="adm-stat-box">
+                <div class="adm-stat-val">10,000+</div>
+                <div class="adm-stat-lbl">Sales Records</div>
+              </div>
+              <div class="adm-stat-box" style="border-color:rgba(239,68,68,0.4);">
+                <div class="adm-stat-val" style="color:#ef4444;">3</div>
+                <div class="adm-stat-lbl">Urgent Alerts</div>
+              </div>
+              <div class="adm-stat-box" style="border-color:rgba(16,185,129,0.3);">
+                <div class="adm-stat-val" style="color:#10b981;">Prophet+RF</div>
+                <div class="adm-stat-lbl">ML Engine</div>
+              </div>
+            </div>
+            <div class="adm-action-bar">
+              <div>
+                <div style="font-size:12px;font-weight:600;color:#fff;">⚡ AI Pipeline Orchestrator</div>
+                <div style="font-size:11px;color:#9da3b4;">Last retrain executed successfully &middot; 0 errors</div>
+              </div>
+              <button type="button" class="btn" style="padding:5px 12px;font-size:11px;background:var(--grad);color:#fff;border:none;border-radius:6px;" onclick="window.location.href='admin.html'">
+                Retrain Pipeline
+              </button>
+            </div>
+            <div class="vtitle" style="font-size:11px;margin-bottom:6px;">LIVE SECURITY AUDIT STREAM</div>
+            <div class="adm-log-ticker">
+              <div class="adm-log-item">
+                <div class="adm-log-dot"></div>
+                <span style="color:#c4b5fd;">[ADMIN_TRIGGER_PIPELINE]</span> Full model refresh (3 urgent alerts identified)
+              </div>
+              <div class="adm-log-item">
+                <div class="adm-log-dot"></div>
+                <span style="color:#67e8f9;">[ADMIN_ADD_PRODUCT]</span> Provisioned SKU-036 (Silk Evening Gown, Stock: 85)
+              </div>
+              <div class="adm-log-item">
+                <div class="adm-log-dot"></div>
+                <span style="color:#f59e0b;">[ADMIN_ROLE_CHANGE]</span> Updated user permissions for store_supervisor@aura.ai
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHOWCASE 2: AI DEMAND & TREND ENGINE -->
+        <div class="sci flip sr">
+          <div class="sctext">
+            <span class="ey">Demand &amp; Trend Engine</span>
+            <h3 class="sh">Precision Forecasting<br>&amp; Dynamic Reorders.</h3>
+            <p>Our forecasting engine continuously calculates future demand curves with confidence bounds, while the EOQ formula ensures you never under-order on rising trends or tie up capital in deadstock.</p>
+            <ul class="bl">
+              <li><strong>4, 8 &amp; 12-Week Horizons:</strong> Decomposes seasonality, promotions, and trend slopes per SKU.</li>
+              <li><strong>Trend Classification:</strong> Rising (&uarr;87%), Stable (&rarr;74%), Declining (&darr;82%) momentum tags.</li>
+              <li><strong>Wholesale Budget Estimation:</strong> Exact reorder quantities multiplied by unit cost price.</li>
+              <li><strong>Stockout Prevention:</strong> Dynamic safety stock and reorder points adjusted for lead times.</li>
+            </ul>
+            <div style="margin-top:20px;">
+              <a href="dashboard.html" class="btn bg2" style="font-size:13px;padding:9px 18px;"><span>📊</span> View Store Analytics Dashboard &rarr;</a>
+            </div>
+          </div>
+          <div class="scvis">
+            <div class="vtitle">DEMAND FORECAST &mdash; SKU-007 Midi Dress</div>
+            <div class="vline" id="forecastViz"></div>
+            <div class="vleg">
+              <div class="vlg">
+                <div class="vlgd" style="background:#7857ff"></div>Prophet
+              </div>
+              <div class="vlg">
+                <div class="vlgd" style="background:#e040a0"></div>Baseline
+              </div>
+            </div>
+            <div class="vrows" style="margin-top:14px">
+              <div class="vr"><span style="width:52px">Week 1</span>
+                <div class="vbw">
+                  <div class="vb" style="width:72%;background:linear-gradient(90deg,#7857ff,#e040a0)"></div>
+                </div><span>248</span>
+              </div>
+              <div class="vr"><span style="width:52px">Week 2</span>
+                <div class="vbw">
+                  <div class="vb" style="width:80%;background:linear-gradient(90deg,#7857ff,#e040a0)"></div>
+                </div><span>276</span>
+              </div>
+              <div class="vr"><span style="width:52px">Week 3</span>
+                <div class="vbw">
+                  <div class="vb" style="width:88%;background:linear-gradient(90deg,#7857ff,#e040a0)"></div>
+                </div><span>304</span>
+              </div>
+              <div class="vr"><span style="width:52px">Week 4</span>
+                <div class="vbw">
+                  <div class="vb" style="width:96%;background:linear-gradient(90deg,#7857ff,#e040a0)"></div>
+                </div><span>329</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHOWCASE 3: BUYER 3D VIRTUAL FITTING ROOM -->
+        <div class="sci sr" id="buyer-experience" style="border: 1px solid rgba(0,188,212,0.25); border-radius: var(--rx); padding: 36px; background: rgba(0,188,212,0.03);">
+          <div class="sctext">
+            <span class="ey" style="color:#67e8f9;">Customer-Facing Innovation &middot; Buyer Portal</span>
+            <h3 class="sh">3D Avatar Sizing<br>&amp; AI Garment Virtual Try-On.</h3>
+            <p>The <strong>Buyer Section (buyer.html)</strong> transforms online shopping into an interactive 3D fitting session. Shoppers customize exact anatomical body models, upload garments, and visualize how clothes drape before purchasing &mdash; slashing returns and giving retailers real sizing demand telemetry.</p>
+            <ul class="bl">
+              <li><strong>Tailored 3D Body Models:</strong> Interactive Male and Female base avatars with dynamic physique adjustment.</li>
+              <li><strong>7-Point Precision Measurements:</strong> Height, chest, waist, hips, shoulder width, arm length, and leg length (in cm).</li>
+              <li><strong>AI Garment Segmentation:</strong> Automatic background removal, category detection (Shirt, Dress, Pants), and color palette extraction.</li>
+              <li><strong>Front &amp; Back View Simulation:</strong> Automatically detects or synthesizes front and back garment perspectives for 360&deg; try-on.</li>
+            </ul>
+            <div style="margin-top:20px;">
+              <a href="buyer.html" class="btn bp" style="background:linear-gradient(135deg,#00bcd4,#7857ff);font-size:13px;padding:9px 18px;"><span>👗</span> Open 3D Virtual Fitting Room &rarr;</a>
+            </div>
+          </div>
+          <div class="scvis" style="border-color:rgba(0,188,212,0.35);">
+            <div class="vtitle" style="color:#67e8f9;">3D VIRTUAL FITTING ROOM &mdash; STEP-BY-STEP FLOW</div>
+            <div class="fit-steps-preview">
+              <div class="fit-step-card">
+                <div class="fit-step-icon">1</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#fff;">Step 1: Choose Body Avatar</div>
+                  <div style="font-size:11px;color:var(--t2);">Select tailored Male or Female 3D anatomical silhouette</div>
+                </div>
+                <span class="fit-tag" style="margin-left:auto;background:rgba(0,188,212,0.15);color:#67e8f9;">&#x2642; Male / &#x2640; Female</span>
+              </div>
+              <div class="fit-step-card">
+                <div class="fit-step-icon">2</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#fff;">Step 2: Enter 7-Point Body Measurements</div>
+                  <div class="fit-measure-tags">
+                    <span class="fit-tag">Height: 175cm</span>
+                    <span class="fit-tag">Chest: 98cm</span>
+                    <span class="fit-tag">Waist: 82cm</span>
+                    <span class="fit-tag">Hips: 96cm</span>
+                    <span class="fit-tag">Shoulder: 44cm</span>
+                  </div>
+                </div>
+              </div>
+              <div class="fit-step-card">
+                <div class="fit-step-icon">3</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#fff;">Step 3: Upload Garment &amp; 3D Virtual Try-On</div>
+                  <div style="font-size:11px;color:var(--t2);">AI isolates garment background, segments front/back views, and drapes on customized avatar</div>
+                </div>
+                <span class="fit-tag" style="margin-left:auto;background:rgba(16,185,129,0.15);color:#10b981;">96% Fit Match</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DIRECT PORTAL ACCESS GATEWAY -->
+  <section id="portals">
+    <div class="wrap">
+      <div class="shd sc sr">
+        <span class="ey">Live System Navigation</span>
+        <h2 class="sh">Direct Gateway to<br><span>AURA Platform Portals.</span></h2>
+        <p class="st">Choose your destination based on your role &mdash; administrative governance or customer virtual fitting.</p>
+      </div>
+      <div class="portal-grid sr">
+        <div class="portal-card admin-core">
+          <div>
+            <span class="portal-tag tag-admin">&#x1F6E1;&#xFE0F; Core Project Purpose &middot; Admin</span>
+            <h3 class="portal-title">Admin Control Center</h3>
+            <p class="portal-desc">The authoritative command hub. Enforce user access controls (RBAC), provision new product SKUs, trigger on-demand machine learning pipeline retraining, review security audit logs, and export inventory data.</p>
+          </div>
+          <div class="portal-acts">
+            <a href="admin.html" class="btn bp">Launch Admin Portal &rarr;</a>
+            <a href="dashboard.html" class="btn bg2">Store Dashboard</a>
+          </div>
+        </div>
+        <div class="portal-card buyer-room">
+          <div>
+            <span class="portal-tag tag-buyer">&#x1F457; Customer Experience &middot; Buyer</span>
+            <h3 class="portal-title">3D Virtual Fitting Room</h3>
+            <p class="portal-desc">Experience our newly launched customer fitting portal. Choose between Male and Female avatars, calibrate 7-point anatomical body measurements, upload clothing images with AI background removal, and simulate virtual fit in 3D.</p>
+          </div>
+          <div class="portal-acts">
+            <a href="buyer.html" class="btn bp" style="background:linear-gradient(135deg,#00bcd4,#7857ff);box-shadow:0 4px 20px rgba(0,188,212,0.35);">Enter 3D Fitting Room &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ctabg">
+    <div class="wrap">
+      <div class="ctabox sr">
+        <h2>Stop Guessing.<br><span
+            style="background:linear-gradient(135deg,#7857ff,#e040a0,#00bcd4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Start Optimizing.</span></h2>
+        <p>Experience the dual-sided power of enterprise inventory governance paired with customer 3D virtual try-on.</p>
+        <div class="ctaacts">
+          <a href="admin.html" class="btn bp bxl">&#x1F6E1;&#xFE0F; Open Admin Portal</a>
+          <a href="buyer.html" class="btn bg2 blg" style="border-color:rgba(0,188,212,0.4);color:#67e8f9;">&#x1F457; Try 3D Fitting Room</a>
+          <button class="btn bo blg" onclick="openModal('login')">Sign In to Account</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="ft">
+      <div class="fbd">
+        <div class="fm2">&#x1F457;</div><span class="fn2">AURA</span>
+      </div>
+      <p class="fcp">AI-Based Clothing Sales Forecasting &amp; Fashion Trend Intelligence &middot; Academic Prototype
+      </p>
+      <ul class="flinks">
+        <li><a href="admin.html">Admin Control Center</a></li>
+        <li><a href="dashboard.html">Store Dashboard</a></li>
+        <li><a href="buyer.html">3D Virtual Fitting Room</a></li>
+        <li><a href="#admin-core">Features</a></li>
+        <li><a href="#how">How It Works</a></li>
+      </ul>
+    </div>
+  </footer>
+
+
+  <div class="mbg" id="authBg">
+    <div class="abox" role="dialog" aria-modal="true">
+      <button class="cx" id="closeAuth">&#x2715;</button>
+      <div class="abrand">
+        <div class="abmark">&#x1F457;</div>
+        <span class="abname">AURA</span>
+      </div>
+      <div class="atabs">
+        <button class="atab on" id="tLogin">Log In</button>
+        <button class="atab" id="tReg">Register</button>
+      </div>
+
+      <!-- Quick Demo Credentials Helper -->
+      <div
+        style="margin: 0 28px 14px; padding: 10px 14px; background: rgba(120,87,255,0.08); border: 1px dashed rgba(120,87,255,0.3); border-radius: 10px; font-size: 11px;">
+        <div
+          style="font-weight: 700; color: #b8a8ff; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+          <span>💡</span> Quick Autofill Demo Credentials:
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn"
+            style="padding: 4px 10px; font-size: 11px; background: rgba(120,87,255,0.25); color: #fff; border: 1px solid rgba(120,87,255,0.5); border-radius: 6px;"
+            onclick="fillLogin('admin@aura.ai', 'admin123')">
+            🛡️ Admin (admin@aura.ai)
+          </button>
+          <button type="button" class="btn"
+            style="padding: 4px 10px; font-size: 11px; background: rgba(255,255,255,0.08); color: #e0e0e0; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;"
+            onclick="fillLogin('demo@aura.ai', 'demo123')">
+            👗 Buyer (demo@aura.ai)
+          </button>
+        </div>
+      </div>
+
+      <!-- Login Panel -->
+      <div class="apanel on" id="pLogin">
+        <div class="atitle">Welcome back &#x1F44B;</div>
+        <p class="asub">Sign in to access your inventory intelligence.</p>
+
+        <button class="gbtn" id="googleLoginBtn" type="button">
+          <svg width="15" height="15" viewBox="0 0 48 48">
+            <path fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+            <path fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+            <path fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+            <path fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+          </svg>
+          Continue with Google
+        </button>
+
+        <div class="divline"><span>or with email</span></div>
+
+        <div id="loginErrorMsg"
+          style="display:none; padding:10px 14px; margin-bottom:14px; border-radius:8px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:12px;">
+        </div>
+
+        <form id="loginForm" novalidate>
+          <div class="fg"><label class="flabel" for="lEmail">Email</label>
+            <div class="iw"><span class="fico">&#x1F4E7;</span><input class="fi" type="email" id="lEmail"
+                placeholder="you@example.com" autocomplete="email" required></div>
+          </div>
+          <div class="fg"><label class="flabel" for="lPwd">Password</label>
+            <div class="iw"><span class="fico">&#x1F512;</span><input class="fi" type="password" id="lPwd"
+                placeholder="Your password" autocomplete="current-password" required><button type="button" class="feye"
+                id="eyeLogin">&#x1F441;&#xFE0F;</button></div>
+          </div>
+          <div class="fopts"><label class="fck"><input type="checkbox" checked><span>Remember me</span></label><a
+              href="#" class="ffgt"
+              onclick="alert('For recovery in demo, use admin@aura.ai / admin123 or continue with Google.')">Forgot
+              password?</a></div>
+          <button type="submit" class="bauth" id="loginSubmitBtn">Sign In &rarr;</button>
+        </form>
+        <p class="afoot">No account? <a href="#" onclick="switchTab('reg')">Register free</a></p>
+      </div>
+
+      <!-- Registration Panel -->
+      <div class="apanel" id="pReg">
+        <div class="atitle">Create account &#x2728;</div>
+        <p class="asub">Join AURA and automate your inventory intelligence.</p>
+
+        <button class="gbtn" id="googleRegBtn" type="button">
+          <svg width="15" height="15" viewBox="0 0 48 48">
+            <path fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+            <path fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+            <path fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+            <path fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+          </svg>
+          Sign up with Google
+        </button>
+
+        <div class="divline"><span>or with email</span></div>
+
+        <div id="regErrorMsg"
+          style="display:none; padding:10px 14px; margin-bottom:14px; border-radius:8px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:12px;">
+        </div>
+
+        <form id="registerForm" novalidate>
+          <div class="frow">
+            <div class="fg"><label class="flabel" for="rFirst">First name</label>
+              <div class="iw"><span class="fico">&#x1F464;</span><input class="fi" type="text" id="rFirst"
+                  placeholder="Jane" autocomplete="given-name" required></div>
+            </div>
+            <div class="fg"><label class="flabel" for="rLast">Last name</label>
+              <div class="iw"><span class="fico">&#x1F464;</span><input class="fi" type="text" id="rLast"
+                  placeholder="Doe" autocomplete="family-name" required></div>
+            </div>
+          </div>
+          <div class="fg"><label class="flabel" for="rEmail">Email</label>
+            <div class="iw"><span class="fico">&#x1F4E7;</span><input class="fi" type="email" id="rEmail"
+                placeholder="you@example.com" autocomplete="email" required></div>
+          </div>
+          <div class="fg">
+            <label class="flabel" for="rPwd">Password</label>
+            <div class="iw"><span class="fico">&#x1F512;</span><input class="fi" type="password" id="rPwd"
+                placeholder="At least 6 characters" autocomplete="new-password" required
+                oninput="strength(this.value)"><button type="button" class="feye" id="eyeReg">&#x1F441;&#xFE0F;</button>
+            </div>
+            <div class="pbwrap">
+              <div class="pbar" id="pBar"></div>
+            </div>
+          </div>
+          <div class="fckwrap"><label class="fck"><input type="checkbox" id="terms" required checked><span>I agree to
+                the <a href="#" style="color:#7857ff">Terms</a> &amp; <a href="#" style="color:#7857ff">Privacy
+                  Policy</a></span></label></div>
+          <button type="submit" class="bauth" id="regSubmitBtn">Create Account &rarr;</button>
+        </form>
+        <p class="afoot">Already have an account? <a href="#" onclick="switchTab('login')">Log in</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Google OAuth Interactive Account Selector Modal -->
+  <!-- ============================================================ -->
+  <div class="mbg" id="googleModal" style="z-index: 400;">
+    <div class="abox"
+      style="max-width: 440px; border-radius: 20px; padding: 32px 28px; background: #131520; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 24px 70px rgba(0,0,0,0.8);">
+      <button class="cx" id="closeGoogleModal" type="button" style="top: 18px; right: 18px;">&#x2715;</button>
+
+      <div style="text-align: center; margin-bottom: 22px;">
+        <svg width="36" height="36" viewBox="0 0 48 48" style="margin-bottom: 8px;">
+          <path fill="#EA4335"
+            d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+          <path fill="#4285F4"
+            d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+          <path fill="#FBBC05"
+            d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+          <path fill="#34A853"
+            d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+        </svg>
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; color: #fff;">Sign in with
+          Google</h3>
+        <p style="font-size: 13px; color: #9da3b4; margin-top: 4px;">Choose an account to continue to AURA Fashion
+          Intelligence</p>
+      </div>
+
+      <!-- Account List -->
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        <!-- Account 1: Admin -->
+        <div class="g-account-item"
+          onclick="executeGoogleLogin('admin@aura.ai', 'System Administrator', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop')"
+          style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop" alt="Admin"
+              style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #8b5cf6;">
+            <div style="text-align: left;">
+              <div style="font-size: 14px; font-weight: 600; color: #fff;">System Administrator</div>
+              <div style="font-size: 12px; color: #9da3b4;">admin@aura.ai</div>
+            </div>
+          </div>
+          <span
+            style="font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 99px; background: rgba(139,92,246,0.2); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.4);">ADMIN
+            🛡️</span>
+        </div>
+
+        <!-- Account 2: Demo User -->
+        <div class="g-account-item"
+          onclick="executeGoogleLogin('demo@aura.ai', 'Demo Fashion Buyer', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop')"
+          style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" alt="Buyer"
+              style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #06b6d4;">
+            <div style="text-align: left;">
+              <div style="font-size: 14px; font-weight: 600; color: #fff;">Demo Shopper (3D Fitting Room)</div>
+              <div style="font-size: 12px; color: #9da3b4;">demo@aura.ai</div>
+            </div>
+          </div>
+          <span
+            style="font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 99px; background: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.3);">3D TRY-ON
+            👗</span>
+        </div>
+
+        <!-- Account 3: Custom Google Account Option -->
+        <div id="customGoogleOption" style="margin-top: 4px;">
+          <div
+            style="padding: 10px 14px; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.15); cursor: pointer; text-align: center; font-size: 12px; color: #c4b5fd;"
+            onclick="toggleCustomGoogleInput()">
+            ➕ Use another Google account...
+          </div>
+          <div id="customGoogleFields"
+            style="display: none; margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+            <input type="email" id="customGEmail" placeholder="Google email (e.g. name@gmail.com)"
+              style="width:100%; padding:9px 12px; margin-bottom:8px; background:rgba(255,255,255,0.06); border:1px solid var(--b); border-radius:8px; color:#fff; font-size:12px;">
+            <input type="text" id="customGName" placeholder="Full name (optional)"
+              style="width:100%; padding:9px 12px; margin-bottom:8px; background:rgba(255,255,255,0.06); border:1px solid var(--b); border-radius:8px; color:#fff; font-size:12px;">
+            <button type="button" class="btn bp"
+              style="width:100%; font-size:12px; padding:8px; justify-content:center;"
+              onclick="submitCustomGoogle()">Continue with this Google account &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status message -->
+      <div id="googleStatusMsg"
+        style="display:none; font-size:12px; text-align:center; padding:8px; border-radius:8px; margin-bottom:12px;">
+      </div>
+
+      <div style="font-size: 11px; color: #525970; text-align: center; line-height: 1.5;">
+        To continue, Google will securely share your profile credentials with AURA Fashion Intelligence.
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .g-account-item:hover {
+      background: rgba(120, 87, 255, 0.12) !important;
+      border-color: rgba(120, 87, 255, 0.35) !important;
+      transform: translateY(-1px);
+    }
+  </style>
+
+  <script>
+    const nav = document.getElementById('nav');
+    addEventListener('scroll', () => nav.classList.toggle('stuck', scrollY > 50));
+    const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); ro.unobserve(e.target); } }), { threshold: .1 });
+    document.querySelectorAll('.sr').forEach(el => ro.observe(el));
+
+    (function () {
+      const ch = document.getElementById('mockChart'); if (!ch) return;
+      const heights = [45, 52, 38, 60, 72, 58, 80, 65, 74, 84, 90, 78, 88, 95, 82, 100, 92, 85, 97, 88];
+      const colors = ['#7857ff', '#e040a0', '#7857ff', '#00bcd4', '#e040a0', '#7857ff', '#00bcd4', '#e040a0', '#7857ff', '#00c897', '#e040a0', '#7857ff', '#00bcd4', '#7857ff', '#e040a0', '#7857ff', '#00c897', '#e040a0', '#7857ff', '#00bcd4'];
+      heights.forEach((v, i) => { const b = document.createElement('div'); b.style.cssText = 'flex:1;border-radius:3px 3px 0 0;height:' + v + '%;background:' + colors[i] + ';opacity:.75'; ch.appendChild(b); });
+    })();
+
+    (function () {
+      const el = document.getElementById('forecastViz'); if (!el) return;
+      [55, 62, 58, 70, 75, 72, 80, 78, 85, 88, 82, 90, 95, 88, 92, 100].forEach(h => { const b = document.createElement('div'); b.style.cssText = 'flex:1;border-radius:3px 3px 0 0;height:' + h + '%;background:linear-gradient(to top,#7857ff,#e040a0);opacity:.85'; el.appendChild(b); });
+    })();
+
+    /* ===== AUTH MODAL LOGIC ===== */
+    const authBg = document.getElementById('authBg');
+    const googleModal = document.getElementById('googleModal');
+
+    function openModal(tab) {
+      authBg.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      switchTab(tab === 'register' ? 'reg' : 'login');
+    }
+    function closeModal() {
+      authBg.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('openLoginBtn').onclick = () => openModal('login');
+    document.getElementById('openRegisterBtn').onclick = () => openModal('register');
+    document.getElementById('closeAuth').onclick = closeModal;
+    authBg.addEventListener('click', e => { if (e.target === authBg) closeModal(); });
+
+    function switchTab(t) {
+      const l = t === 'login';
+      ['tLogin', 'tReg'].forEach((id, i) => document.getElementById(id).classList.toggle('on', i === 0 ? l : !l));
+      ['pLogin', 'pReg'].forEach((id, i) => document.getElementById(id).classList.toggle('on', i === 0 ? l : !l));
+    }
+    document.getElementById('tLogin').onclick = () => switchTab('login');
+    document.getElementById('tReg').onclick = () => switchTab('reg');
+
+    function toggleEye(inputId, btnId) {
+      const i = document.getElementById(inputId), b = document.getElementById(btnId);
+      i.type = i.type === 'password' ? 'text' : 'password';
+      b.innerHTML = i.type === 'text' ? '&#x1F648;' : '&#x1F441;&#xFE0F;';
+    }
+    document.getElementById('eyeLogin').onclick = () => toggleEye('lPwd', 'eyeLogin');
+    document.getElementById('eyeReg').onclick = () => toggleEye('rPwd', 'eyeReg');
+
+    function strength(v) {
+      const bar = document.getElementById('pBar');
+      let s = 0;
+      if (v.length >= 6) s++;
+      if (v.length >= 8) s++;
+      if (/[A-Z]/.test(v)) s++;
+      if (/[0-9]/.test(v)) s++;
+      bar.style.width = ['0%', '25%', '50%', '75%', '100%'][s];
+      bar.style.background = ['#ef4444', '#f59e0b', '#eab308', '#10b981', '#06b6d4'][s];
+    }
+
+    function fillLogin(email, pwd) {
+      document.getElementById('lEmail').value = email;
+      document.getElementById('lPwd').value = pwd;
+      switchTab('login');
+    }
+
+    /* ===== GOOGLE SIGN-IN MODAL HANDLERS ===== */
+    function openGoogleModal() {
+      googleModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeGoogleModal() {
+      googleModal.classList.remove('open');
+      if (!authBg.classList.contains('open')) {
+        document.body.style.overflow = '';
+      }
+    }
+
+    document.getElementById('googleLoginBtn').onclick = openGoogleModal;
+    document.getElementById('googleRegBtn').onclick = openGoogleModal;
+    document.getElementById('closeGoogleModal').onclick = closeGoogleModal;
+    googleModal.addEventListener('click', e => { if (e.target === googleModal) closeGoogleModal(); });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeGoogleModal();
+      }
+    });
+
+    function toggleCustomGoogleInput() {
+      const f = document.getElementById('customGoogleFields');
+      f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function submitCustomGoogle() {
+      const email = document.getElementById('customGEmail').value.trim();
+      const name = document.getElementById('customGName').value.trim() || email.split('@')[0];
+      if (!email) {
+        alert('Please enter a valid Google email.');
+        return;
+      }
+      executeGoogleLogin(email, name);
+    }
+
+    async function executeGoogleLogin(email, name, avatarUrl) {
+      const statusEl = document.getElementById('googleStatusMsg');
+      statusEl.style.display = 'block';
+      statusEl.style.background = 'rgba(120,87,255,0.15)';
+      statusEl.style.color = '#c4b5fd';
+      statusEl.innerHTML = '🔄 Connecting to Google OAuth service...';
+
+      try {
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, name, avatar_url: avatarUrl })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          statusEl.style.background = 'rgba(239,68,68,0.2)';
+          statusEl.style.color = '#ef4444';
+          statusEl.textContent = data.error || 'Google sign in failed.';
+          return;
+        }
+
+        // Save session
+        localStorage.setItem('aura_user', JSON.stringify(data.user));
+        if (data.token) localStorage.setItem('aura_token', data.token);
+
+        statusEl.style.background = 'rgba(16,185,129,0.2)';
+        statusEl.style.color = '#10b981';
+
+        if (data.user.role === 'admin') {
+          statusEl.innerHTML = '✅ <strong>Admin Authenticated!</strong> Launching Admin Panel...';
+          setTimeout(() => { window.location.href = 'admin.html'; }, 650);
+        } else {
+          statusEl.innerHTML = '✅ <strong>Signed in!</strong> Launching Virtual Fitting Room...';
+          setTimeout(() => { window.location.href = 'buyer.html'; }, 650);
+        }
+
+      } catch (err) {
+        statusEl.style.background = 'rgba(239,68,68,0.2)';
+        statusEl.style.color = '#ef4444';
+        statusEl.textContent = 'Network error connecting to backend.';
+      }
+    }
+
+    /* ===== STANDARD FORM SUBMISSIONS ===== */
+    document.getElementById('loginForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('lEmail').value.trim();
+      const password = document.getElementById('lPwd').value.trim();
+      const errEl = document.getElementById('loginErrorMsg');
+      const btn = document.getElementById('loginSubmitBtn');
+
+      if (!email || !password) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Please enter both email and password.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Authenticating...';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          errEl.style.display = 'block';
+          errEl.textContent = data.error || 'Invalid email or password.';
+          btn.disabled = false;
+          btn.textContent = 'Sign In →';
+          return;
+        }
+
+        localStorage.setItem('aura_user', JSON.stringify(data.user));
+        if (data.token) localStorage.setItem('aura_token', data.token);
+
+        btn.textContent = 'Success!';
+        if (data.user.role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'buyer.html';
+        }
+      } catch (err) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Network error contacting authentication service.';
+        btn.disabled = false;
+        btn.textContent = 'Sign In →';
+      }
+    };
+
+    document.getElementById('registerForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const first = document.getElementById('rFirst').value.trim();
+      const last = document.getElementById('rLast').value.trim();
+      const name = `${first} ${last}`.trim() || 'New User';
+      const email = document.getElementById('rEmail').value.trim();
+      const password = document.getElementById('rPwd').value.trim();
+      const errEl = document.getElementById('regErrorMsg');
+      const btn = document.getElementById('regSubmitBtn');
+
+      if (!document.getElementById('terms').checked) {
+        alert('Please accept the Terms & Privacy Policy.');
+        return;
+      }
+
+      if (!email || !password) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Please enter email and password.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Creating Account...';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          errEl.style.display = 'block';
+          errEl.textContent = data.error || 'Failed to create account.';
+          btn.disabled = false;
+          btn.textContent = 'Create Account →';
+          return;
+        }
+
+        localStorage.setItem('aura_user', JSON.stringify(data.user));
+        if (data.token) localStorage.setItem('aura_token', data.token);
+
+        btn.textContent = 'Account Created!';
+        if (data.user.role === 'admin') {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'buyer.html';
+        }
+      } catch (err) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Network error contacting registration service.';
+        btn.disabled = false;
+        btn.textContent = 'Create Account →';
+      }
+    };
+  </script>
+</body>
+
+</html>

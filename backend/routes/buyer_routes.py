@@ -353,10 +353,9 @@ def virtual_tryon():
     c_path = os.path.join(CLOTH_UPLOAD_FOLDER, c_filename)
     cloth_file.save(c_path)
 
-    # 4. IDM-VTON Gradio Client Prediction
-    space_name = os.getenv("IDM_VTON_SPACE", "yisol/IDM-VTON")
-    timeout_sec = int(os.getenv("IDM_VTON_TIMEOUT", 180))
-    garment_des = request.form.get("garment_des", "a shirt")
+    # 4. WeShopAI-Virtual-Try-On Gradio Client Prediction
+    space_name = os.getenv("VTON_SPACE", "WeShopAI/WeShopAI-Virtual-Try-On")
+    timeout_sec = int(os.getenv("VTON_TIMEOUT", 180))
 
     try:
         from gradio_client import Client
@@ -374,7 +373,7 @@ def virtual_tryon():
             else:
                 raise first_err
     except Exception as conn_err:
-        logger.error(f"Failed to connect to IDM-VTON Space '{space_name}': {conn_err}")
+        logger.error(f"Failed to connect to VTON Space '{space_name}': {conn_err}")
         return jsonify({
             "error": "Virtual try-on service is temporarily unavailable. Could not connect to model space.",
             "details": str(conn_err)
@@ -384,18 +383,13 @@ def virtual_tryon():
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(
                 client.predict,
-                dict={"background": gr_file(p_path), "layers": [], "composite": None},
-                garm_img=gr_file(c_path),
-                garment_des=garment_des,
-                is_checked=True,
-                is_checked_crop=False,
-                denoise_steps=30,
-                seed=42,
-                api_name="/tryon"
+                main_image=gr_file(p_path),
+                background_image=gr_file(c_path),
+                api_name="/generate_image"
             )
             result = future.result(timeout=timeout_sec)
     except concurrent.futures.TimeoutError:
-        logger.error(f"IDM-VTON prediction timed out after {timeout_sec}s")
+        logger.error(f"VTON prediction timed out after {timeout_sec}s")
         return jsonify({
             "error": "Virtual try-on service is temporarily unavailable. Request timed out."
         }), 502
@@ -412,7 +406,11 @@ def virtual_tryon():
             "error": "Virtual try-on service returned an empty result."
         }), 502
 
-    output_item = result[0]
+    if isinstance(result, (list, tuple)):
+        output_item = result[0]
+    else:
+        output_item = result
+    
     output_path = output_item["path"] if (isinstance(output_item, dict) and "path" in output_item) else output_item
 
     result_filename = f"tryon_{base_id}.jpg"

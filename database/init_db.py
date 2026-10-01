@@ -194,6 +194,8 @@ def populate_database_from_csv(
 
     if sales_csv and os.path.exists(sales_csv):
         df_sales = pd.read_csv(sales_csv)
+        sales_cols = ['date', 'sku', 'quantity_sold', 'unit_price', 'discount_applied']
+        df_sales = df_sales[sales_cols]
         cursor.execute("DELETE FROM sales_history")
         df_sales.to_sql("sales_history", conn, if_exists="append", index=False)
         print(f"[OK] Populated {len(df_sales)} rows into 'sales_history' table from {sales_csv}.")
